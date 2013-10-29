@@ -3,7 +3,6 @@ using System.IdentityModel.Tokens;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Security.Tokens;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -44,7 +43,7 @@ namespace JwtAuthForWebAPI
             var parameters = new TokenValidationParameters
             {
                 AllowedAudience = AllowedAudience,
-                SigningToken = SigningToken, 
+                SigningToken = SigningToken,
                 ValidIssuer = Issuer
             };
 
@@ -65,23 +64,22 @@ namespace JwtAuthForWebAPI
         }
 
         /// <summary>
-        /// Sets the <see cref="SecurityToken"/> property with an X509 certificate obtained from the local machine using the 
-        /// given search criteria. The search criteria must result in exactly one certificate being found.
+        ///     Sets the <see cref="SecurityToken" /> property with an X509 certificate obtained from the local machine using the
+        ///     given search criteria. The search criteria must result in exactly one certificate being found.
         /// </summary>
         public void SetSecurityTokenWithCertificate(
             X509FindType findType,
             string findValue,
-            StoreName certificateStore = StoreName.My, 
+            StoreName certificateStore = StoreName.My,
             StoreLocation certificateStoreLocation = StoreLocation.LocalMachine)
         {
-            
             var store = new X509Store(certificateStore, certificateStoreLocation);
             store.Open(OpenFlags.ReadOnly);
             var certs = store.Certificates.Find(findType, findValue, true);
 
             if (certs.Count == 0)
             {
-                string msg = string.Format(
+                var msg = string.Format(
                     "Certificate in store '{0}' and location '{1}' and findType '{2}' and findValue '{3}' not found.",
                     certificateStore,
                     certificateStoreLocation,
@@ -92,7 +90,7 @@ namespace JwtAuthForWebAPI
 
             if (certs.Count > 1)
             {
-                string msg = string.Format(
+                var msg = string.Format(
                     "More than one certificate with store '{0}' and location '{1}' and findType '{2}' and findValue '{3}' found.",
                     certificateStore,
                     certificateStoreLocation,
@@ -105,15 +103,9 @@ namespace JwtAuthForWebAPI
             SigningToken = new X509SecurityToken(certificate);
         }
 
-        public void SetSecurityTokenWithSharedKey(string asciiEncodedKeyString)
+        public void SetSecurityTokenWithSharedKey(string base64Key)
         {
-            SetSecurityTokenWithSharedKey(asciiEncodedKeyString, Encoding.ASCII);
-        }
-
-        public void SetSecurityTokenWithSharedKey(string key, Encoding encoding)
-        {
-            var bytes = encoding.GetBytes(key);
-            SetSecurityTokenWithSharedKey(bytes);
+            SetSecurityTokenWithSharedKey(Convert.FromBase64String(base64Key));
         }
 
         public void SetSecurityTokenWithSharedKey(byte[] key)
