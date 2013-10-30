@@ -9,6 +9,12 @@ using System.Web;
 
 namespace JwtAuthForWebAPI
 {
+    /// <summary>
+    /// Token handler used to validate JSON Web Tokens (JWTs) that are included in the Authorization header of
+    /// an incoming HTTP request. The authorization scheme must be set to Bearer.
+    /// 
+    /// To use, add this handler to the Handlers collection in 
+    /// </summary>
     public class JWtAuthenticationMessageHandler : DelegatingHandler
     {
         public const string BearerScheme = "Bearer";
@@ -19,10 +25,23 @@ namespace JwtAuthForWebAPI
             Issuer = "self";
         }
 
+        /// <summary>
+        /// Gets or sets the token to use to verify the signature of incoming JWTs.
+        /// </summary>
         public SecurityToken SigningToken { get; set; }
 
+        /// <summary>
+        /// Gets or sets the audience (usually a URL, but really just an arbitrary string) that 
+        /// will be used during validation of incoming JWTs. This value must match the AppliesToAddress 
+        /// value on the token. Default value is "http://www.example.com".
+        /// </summary>
         public string AllowedAudience { get; set; }
 
+        /// <summary>
+        /// Gets or sets the issuer (usually a URL, but really just an arbitrary string) that 
+        /// will be used during validation of incoming JWTs. This value must match the TokenIssuerName 
+        /// value on the token. Default value is "self".
+        /// </summary>
         public string Issuer { get; set; }
 
         protected override Task<HttpResponseMessage> SendAsync(
@@ -103,11 +122,19 @@ namespace JwtAuthForWebAPI
             SigningToken = new X509SecurityToken(certificate);
         }
 
+        /// <summary>
+        /// Sets the <see cref="SecurityToken" /> property with an shared-key token created from the 
+        /// given base64 encoded string.
+        /// </summary>
         public void SetSecurityTokenWithSharedKey(string base64Key)
         {
             SetSecurityTokenWithSharedKey(Convert.FromBase64String(base64Key));
         }
 
+        /// <summary>
+        /// Sets the <see cref="SecurityToken" /> property with an shared-key token created from the 
+        /// given byte array key.
+        /// </summary>
         public void SetSecurityTokenWithSharedKey(byte[] key)
         {
             SigningToken = new BinarySecretSecurityToken(key);
