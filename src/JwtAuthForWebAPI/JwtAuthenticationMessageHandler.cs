@@ -13,7 +13,7 @@ namespace JwtAuthForWebAPI
     /// Token handler used to validate JSON Web Tokens (JWTs) that are included in the Authorization header of
     /// an incoming HTTP request. The authorization scheme must be set to Bearer.
     /// 
-    /// To use, add this handler to the Handlers collection in 
+    /// To use, add an instance of this handler to the GlobalConfiguration.Configuration.MessageHandlers collection. 
     /// </summary>
     public class JWtAuthenticationMessageHandler : DelegatingHandler
     {
