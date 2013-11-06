@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI", "JwtAuthForWebAPI\JwtAuthForWebAPI.csproj", "{9A8CF85F-7277-4057-8A73-B0EB90662E61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI.SampleSite", "JwtAuthForWebAPI.SampleSite\JwtAuthForWebAPI.SampleSite.csproj", "{97331A9D-D48A-4C00-BB2A-C015F260E71E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI.SampleClient", "JwtAuthForWebAPI.SampleClient\JwtAuthForWebAPI.SampleClient.csproj", "{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +17,14 @@ Global
 		{9A8CF85F-7277-4057-8A73-B0EB90662E61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A8CF85F-7277-4057-8A73-B0EB90662E61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A8CF85F-7277-4057-8A73-B0EB90662E61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97331A9D-D48A-4C00-BB2A-C015F260E71E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97331A9D-D48A-4C00-BB2A-C015F260E71E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97331A9D-D48A-4C00-BB2A-C015F260E71E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97331A9D-D48A-4C00-BB2A-C015F260E71E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

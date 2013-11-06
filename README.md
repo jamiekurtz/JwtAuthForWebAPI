@@ -14,3 +14,13 @@ Nuget-deployed library for securing your ASP.NET Web API service with with JSON 
      </system.diagnostics>
  </configuration>
 
+
+"Developer Command Prompt for VS2012"
+
+makecert -r -n "CN=JwtAuthForWebAPI Example" -sky signature -ss my -sr localmachine
+
+certmgr -add -c -n "JwtAuthForWebAPI Example" -s -r localmachine My -s -r localmachine root
+
+(http://msdn.microsoft.com/en-us/library/bfsktky3(v=vs.110).aspx)
+
+
