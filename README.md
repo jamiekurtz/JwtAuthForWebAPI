@@ -60,6 +60,18 @@ To create the certificate used in this sample code:
 At this point, the client and server code will be able to utilize the certificate for token signing and validation.
 
 
+Logging
+-------
+
+You can enable logging for this library by configuring a log4net logger in your web.config file - similar to the sample site's
+web.config file. The logger you need to enable is called `JwtAuthForWebAPI.JwtAuthenticationMessageHandler`. You need web.config 
+content, as well as the following line in your site startup code:
+
+    log4net.Config.XmlConfigurator.Configure();
+
+Please view the web.config file in the JwtAuthForWebAPI.SampleSite project for an example of setting up the logger.
+
+
 
 
 
