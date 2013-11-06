@@ -13,10 +13,8 @@
     <releaseNotes>
       Nuget-deployed library for securing your ASP.NET Web API service with JSON Web Tokens (JWT).
 
-      This library is essentially a DelegatingHandler that creates a new ClaimsPrincipal based on the incoming token and assigns it to the current
-      thread. As such, you *must* secure your controllers and/or their actions with the `[Authorize]` attribute - per standard ASP.NET authorization practices. In
-      other words, the handler doesn't actually prevent unauthorized access to your site - that's what the `[Authorize]` attribute is for.
-
+      This library is essentially a DelegatingHandler that creates a new ClaimsPrincipal based on the incoming token and assigns it to the current thread. As such, you *must* secure your controllers and/or their actions with the `[Authorize]` attribute - per standard ASP.NET authorization practices. In other words, the handler doesn't actually prevent unauthorized access to your site - that's what the `[Authorize]` attribute is for. 
+      
       Configure your ASP.NET Web API site with this library by putting the following code (or similar) in your WebApiConfig.Register() method:
 
       var builder = new SecurityTokenBuilder();
