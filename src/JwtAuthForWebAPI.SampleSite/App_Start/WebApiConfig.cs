@@ -16,7 +16,7 @@ namespace JwtAuthForWebAPI.SampleSite
             );
 
             var builder = new SecurityTokenBuilder();
-            var jwtHandler = new JWtAuthenticationMessageHandler
+            var jwtHandler = new JwtAuthenticationMessageHandler
             {
                 AllowedAudience = "http://www.example.com",
                 Issuer = "corp",

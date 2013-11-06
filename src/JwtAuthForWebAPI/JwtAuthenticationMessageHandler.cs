@@ -1,9 +1,9 @@
-using System;
 using System.IdentityModel.Tokens;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using log4net;
 
 namespace JwtAuthForWebAPI
 {
@@ -12,14 +12,16 @@ namespace JwtAuthForWebAPI
     ///     an incoming HTTP request. The authorization scheme must be set to Bearer.
     ///     To use, add an instance of this handler to the GlobalConfiguration.Configuration.MessageHandlers collection.
     /// </summary>
-    public class JWtAuthenticationMessageHandler : DelegatingHandler
+    public class JwtAuthenticationMessageHandler : DelegatingHandler
     {
         /// <summary>
         ///     String representation of the Bearer scheme, used for JWTs.
         /// </summary>
         public const string BearerScheme = "Bearer";
 
-        public JWtAuthenticationMessageHandler()
+        private readonly ILog _logger = LogManager.GetLogger("JwtAuthForWebAPI");
+
+        public JwtAuthenticationMessageHandler()
         {
             AllowedAudience = "http://www.example.com";
             Issuer = "self";
@@ -51,11 +53,16 @@ namespace JwtAuthForWebAPI
             var authHeader = request.Headers.Authorization;
             if (authHeader == null)
             {
+                _logger.Info("Missing authorization header");
                 return base.SendAsync(request, cancellationToken);
             }
 
             if (authHeader.Scheme != BearerScheme)
             {
+                _logger.InfoFormat(
+                    "Authorization header scheme is {0}; needs to {1} to be handled as a JWT.",
+                    authHeader.Scheme,
+                    BearerScheme);
                 return base.SendAsync(request, cancellationToken);
             }
 
@@ -75,6 +82,7 @@ namespace JwtAuthForWebAPI
                 var principal = tokenHandler.ValidateToken(token, parameters);
 
                 Thread.CurrentPrincipal = principal;
+                _logger.DebugFormat("Thread principal set with identity '{0}'", principal.Identity.Name);
 
                 if (HttpContext.Current != null)
                 {
@@ -83,7 +91,7 @@ namespace JwtAuthForWebAPI
             }
             catch (SecurityTokenValidationException e)
             {
-                Console.WriteLine(e);
+                _logger.ErrorFormat("Error during JWT validation: {0}", e);
                 throw;
             }
 
