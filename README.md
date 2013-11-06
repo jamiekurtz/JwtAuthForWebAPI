@@ -15,6 +15,8 @@ a JWE will fail.
 
 You can install the NuGet package for this library at https://www.nuget.org/packages/JwtAuthForWebAPI/.
 
+You will also need to add a reference System.IdentityModel - which is included with the 4.5 .NET Framework.
+
 
 Configuration
 -------------
