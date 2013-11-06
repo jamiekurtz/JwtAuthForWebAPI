@@ -13,6 +13,7 @@ the handler expects the token to be submitted within the Authorization header, u
 Serialized format. This also means that this handler only supports signed JWTs (i.e. JWS), and not encrypted tokens (i.e. JWE). Attempting to use
 a JWE will fail.
 
+You can install the NuGet package for this library at https://www.nuget.org/packages/JwtAuthForWebAPI/.
 
 
 Configuration
@@ -36,8 +37,6 @@ other words, if the incoming token contains different values for either of these
 The `SigningToken` property can be any valid SecurityToken object that can be used to validate the incoming token's signature. To make it
 easier to configure, you can use the `SecurityTokenBuilder` object - as shown in the example above. The builder supports using
 either an X.509 certificate or a shared key (as either a byte array or a base64-encoded string).
-
-You can install the NuGet package for this library at https://www.nuget.org/packages/JwtAuthForWebAPI/.
 
 
 Creating a Development Certificate
