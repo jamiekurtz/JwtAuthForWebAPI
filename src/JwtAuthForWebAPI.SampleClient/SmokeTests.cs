@@ -60,8 +60,27 @@ namespace JwtAuthForWebAPI.SampleClient
 
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         }
+        
+        [Test]
+        public void call_with_token_with_different_audience_should_still_succeed()
+        {
+            var client = new HttpClient { BaseAddress = ApiUrl };
+            AddAuthHeader(client, "http://www.anotherexample.com");
+
+            var response = client.GetAsync("api/values").Result;
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var responseMessage = response.Content.ReadAsStringAsync().Result;
+            responseMessage.Should().Contain("bsmith");
+        }
 
         private void AddAuthHeader(HttpClient client)
+        {
+            AddAuthHeader(client, "http://www.example.com");
+        }
+
+        private void AddAuthHeader(HttpClient client, string audience)
         {
             var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
             store.Open(OpenFlags.ReadOnly);
@@ -80,7 +99,7 @@ namespace JwtAuthForWebAPI.SampleClient
                     new Claim(ClaimTypes.Role, "Customer Service")
                 }),
                 TokenIssuerName = "corp",
-                AppliesToAddress = "http://www.example.com",
+                AppliesToAddress = audience,
                 SigningCredentials = new X509SigningCredentials(signingCert)
             };
 

@@ -19,6 +19,7 @@ namespace JwtAuthForWebAPI.SampleSite
             var jwtHandler = new JwtAuthenticationMessageHandler
             {
                 AllowedAudience = "http://www.example.com",
+                AllowedAudiences = new[] {"http://www.anotherexample.com"},
                 Issuer = "corp",
                 SigningToken = builder.CreateFromCertificate("CN=JwtAuthForWebAPI Example")
             };

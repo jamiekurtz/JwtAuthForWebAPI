@@ -40,6 +40,8 @@ The `SigningToken` property can be any valid SecurityToken object that can be us
 easier to configure, you can use the `SecurityTokenBuilder` object - as shown in the example above. The builder supports using
 either an X.509 certificate or a shared key (as either a byte array or a base64-encoded string).
 
+You can also use the `AllowedAudiences` property - in addition to or instead of the `AllowedAudience` property.
+
 
 Creating a Development Certificate
 ----------------------------------

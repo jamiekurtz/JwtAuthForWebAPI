@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Net.Http;
 using System.Threading;
@@ -38,6 +40,13 @@ namespace JwtAuthForWebAPI
         ///     value on the token. Default value is "http://www.example.com".
         /// </summary>
         public string AllowedAudience { get; set; }
+        
+        /// <summary>
+        ///     Gets or sets a list of audience values (usually URLs, but really just an arbitrary string) that
+        ///     will be used during validation of incoming JWTs. At least one value in this list must match 
+        ///     the AppliesToAddress value on the token. 
+        /// </summary>
+        public IEnumerable<string> AllowedAudiences { get; set; }
 
         /// <summary>
         ///     Gets or sets the issuer (usually a URL, but really just an arbitrary string) that
@@ -70,7 +79,8 @@ namespace JwtAuthForWebAPI
             {
                 AllowedAudience = AllowedAudience,
                 SigningToken = SigningToken,
-                ValidIssuer = Issuer
+                ValidIssuer = Issuer,
+                AllowedAudiences = AllowedAudiences
             };
 
             var tokenString = authHeader.Parameter;

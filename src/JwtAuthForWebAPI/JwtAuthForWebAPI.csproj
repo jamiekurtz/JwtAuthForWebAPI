@@ -53,7 +53,9 @@
     <Compile Include="SecurityTokenBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="JwtAuthForWebAPI.nuspec" />
+    <None Include="JwtAuthForWebAPI.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
