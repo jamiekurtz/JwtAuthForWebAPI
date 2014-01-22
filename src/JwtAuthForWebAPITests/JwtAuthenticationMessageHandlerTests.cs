@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -19,6 +20,7 @@ namespace JwtAuthForWebAPITests
         {
             _securityTokenMock = new Mock<IJwtSecurityToken>();
             _securityTokenHandlerMock = new Mock<IJwtSecurityTokenHandler>();
+            _principalTransformerMock = new Mock<IPrincipalTransformer>();
 
             _textMessageWriter = new TextMessageWriter();
 
@@ -41,6 +43,8 @@ namespace JwtAuthForWebAPITests
         private Mock<IJwtSecurityToken> _securityTokenMock;
 
         private Mock<IJwtSecurityTokenHandler> _securityTokenHandlerMock;
+
+        private Mock<IPrincipalTransformer> _principalTransformerMock; 
 
         private JwtAuthenticationMessageHandlerTestDouble _authenticationMessageHandler;
 
@@ -94,6 +98,28 @@ namespace JwtAuthForWebAPITests
 
             Assert.AreSame(principal, Thread.CurrentPrincipal, "Incorrect CurrentPrincipal");
             Assert.AreSame(principal, HttpContext.Current.User, "Incorrect user in context");
+        }
+
+        [Test]
+        public async Task SendAsync_sets_transformed_principal()
+        {
+            var requestMessage = new HttpRequestMessage();
+            requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer");
+
+            var principal = new ClaimsPrincipal(new ClaimsIdentity());
+            var transformedPrincipal = new GenericPrincipal(new ClaimsIdentity(), new []{"user"});
+
+            _securityTokenHandlerMock.Setup(
+                x => x.ValidateToken(_securityTokenMock.Object, It.IsAny<TokenValidationParameters>()))
+                .Returns(principal);
+            _principalTransformerMock.Setup(x => x.Transform(principal)).Returns(transformedPrincipal);
+
+            _authenticationMessageHandler.PrincipalTransformer = _principalTransformerMock.Object;
+
+            await _authenticationMessageHandler.SendAsync(requestMessage, CancellationToken.None);
+
+            Assert.AreSame(transformedPrincipal, Thread.CurrentPrincipal, "Incorrect CurrentPrincipal");
+            Assert.AreSame(transformedPrincipal, HttpContext.Current.User, "Incorrect user in context");
         }
     }
 }

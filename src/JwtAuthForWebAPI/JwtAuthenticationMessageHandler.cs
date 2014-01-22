@@ -55,6 +55,12 @@ namespace JwtAuthForWebAPI
         /// </summary>
         public string Issuer { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <see cref="IPrincipalTransformer"/> that converts a principal into a custom
+        /// principal. May be null.
+        /// </summary>
+        public IPrincipalTransformer PrincipalTransformer { get; set; }
+
         protected virtual Task<HttpResponseMessage> BaseSendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
@@ -97,6 +103,11 @@ namespace JwtAuthForWebAPI
             try
             {
                 var principal = tokenHandler.ValidateToken(token, parameters);
+
+                if (PrincipalTransformer != null)
+                {
+                    principal = PrincipalTransformer.Transform(principal);
+                }
 
                 Thread.CurrentPrincipal = principal;
                 _logger.DebugFormat("Thread principal set with identity '{0}'", principal.Identity.Name);
