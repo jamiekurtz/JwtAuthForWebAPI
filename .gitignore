@@ -90,6 +90,7 @@ csx
 AppPackages/
 
 # Others
+/src/JwtAuthForWebAPI.SampleSite/logs/
 [Bb]in
 [Oo]bj
 sql
