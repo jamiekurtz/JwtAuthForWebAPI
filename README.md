@@ -56,11 +56,11 @@ To create the certificate used in this sample code:
 1. Open the "Developer Command Prompt for VS2012" from the Windows Start Menu
 1. Run the following command to create the certificate:
 
-    `makecert -r -n "CN=JwtAuthForWebAPI Example" -sky signature -ss my -sr localmachine`
+    `makecert -r -n "CN=JwtAuthForWebAPI Example" -sky signature -ss My -sr localmachine`
 
 1. Then run this command to copy the new self-signed certificate into your machine's Trusted Root store:
 
-    `certmgr -add -c -n "JwtAuthForWebAPI Example" -s -r localmachine My -s -r localmachine root`
+    `certmgr /add /c /n "JwtAuthForWebAPI Example" /s /r localmachine My /s /r localmachine root`
 
 At this point, the client and server code will be able to utilize the certificate for token signing and validation.
 
