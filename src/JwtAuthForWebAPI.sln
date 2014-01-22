@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI.SampleSite
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI.SampleClient", "JwtAuthForWebAPI.SampleClient\JwtAuthForWebAPI.SampleClient.csproj", "{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPITests", "JwtAuthForWebAPITests\JwtAuthForWebAPITests.csproj", "{525689D3-61BA-484C-8401-21EAE0E6B2E1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,8 +29,15 @@ Global
 		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{525689D3-61BA-484C-8401-21EAE0E6B2E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{525689D3-61BA-484C-8401-21EAE0E6B2E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{525689D3-61BA-484C-8401-21EAE0E6B2E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{525689D3-61BA-484C-8401-21EAE0E6B2E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{525689D3-61BA-484C-8401-21EAE0E6B2E1} = {F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1}
 	EndGlobalSection
 EndGlobal

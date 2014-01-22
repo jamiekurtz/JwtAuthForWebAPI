@@ -55,6 +55,13 @@ namespace JwtAuthForWebAPI
         /// </summary>
         public string Issuer { get; set; }
 
+        protected virtual Task<HttpResponseMessage> BaseSendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            return base.SendAsync(request, cancellationToken);
+        }
+
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
@@ -63,7 +70,7 @@ namespace JwtAuthForWebAPI
             if (authHeader == null)
             {
                 _logger.Info("Missing authorization header");
-                return base.SendAsync(request, cancellationToken);
+                return BaseSendAsync(request, cancellationToken);
             }
 
             if (authHeader.Scheme != BearerScheme)
@@ -72,7 +79,7 @@ namespace JwtAuthForWebAPI
                     "Authorization header scheme is {0}; needs to {1} to be handled as a JWT.",
                     authHeader.Scheme,
                     BearerScheme);
-                return base.SendAsync(request, cancellationToken);
+                return BaseSendAsync(request, cancellationToken);
             }
 
             var parameters = new TokenValidationParameters
@@ -84,8 +91,8 @@ namespace JwtAuthForWebAPI
             };
 
             var tokenString = authHeader.Parameter;
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = new JwtSecurityToken(tokenString);
+            var tokenHandler = CreateTokenHandler();
+            var token = CreateToken(tokenString);
 
             try
             {
@@ -105,7 +112,17 @@ namespace JwtAuthForWebAPI
                 throw;
             }
 
-            return base.SendAsync(request, cancellationToken);
+            return BaseSendAsync(request, cancellationToken);
+        }
+
+        protected virtual IJwtSecurityToken CreateToken(string tokenString)
+        {
+            return new JwtSecurityTokenAdapter(tokenString);
+        }
+
+        protected virtual IJwtSecurityTokenHandler CreateTokenHandler()
+        {
+            return new JwtSecurityTokenHandlerAdapter();
         }
     }
 }
