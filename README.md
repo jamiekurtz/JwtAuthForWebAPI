@@ -54,11 +54,11 @@ server.
 To create the certificate used in this sample code:
 
 1. Open the "Developer Command Prompt for VS2012" (as Administrator) from the Windows Start Menu
-2. Run the following command to create the certificate:
+1. Run the following command to create the certificate:
 
     `makecert -r -n "CN=JwtAuthForWebAPI Example" -sky signature -ss My -sr localmachine`
 
-3. Then run this command to copy the new self-signed certificate into your machine's Trusted Root store:
+1. Then run this command to copy the new self-signed certificate into your machine's Trusted Root store:
 
     `certmgr /add /c /n "JwtAuthForWebAPI Example" /s /r localmachine My /s /r localmachine root`
 
@@ -81,7 +81,7 @@ Testing
 
 1. Run unit tests in the solution's Tests folder.
 
-2. Run integration tests in the JwtAuthForWebAPI.SampleClient project.
+1. Run integration tests in the JwtAuthForWebAPI.SampleClient project.
 
    The JwtAuthForWebAPI.SampleSite must be running in order to run integration tests. To start the site, you can set it as the startup
    project and click F5 to start the site; once the site is running you can close the browser.
