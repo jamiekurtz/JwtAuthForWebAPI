@@ -1,5 +1,5 @@
 using System.IdentityModel.Tokens;
-using System.Security.Principal;
+using System.Security.Claims;
 
 namespace JwtAuthForWebAPI
 {
@@ -12,7 +12,7 @@ namespace JwtAuthForWebAPI
             _securityTokenHandler = new JwtSecurityTokenHandler();
         }
 
-        public IPrincipal ValidateToken(IJwtSecurityToken securityToken, TokenValidationParameters validationParameters)
+        public ClaimsPrincipal ValidateToken(IJwtSecurityToken securityToken, TokenValidationParameters validationParameters)
         {
             return _securityTokenHandler.ValidateToken(((JwtSecurityTokenAdapter) securityToken).Inner, validationParameters);
         }

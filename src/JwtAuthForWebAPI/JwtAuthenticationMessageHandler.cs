@@ -1,7 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens;
 using System.Net.Http;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -102,11 +103,11 @@ namespace JwtAuthForWebAPI
 
             try
             {
-                var principal = tokenHandler.ValidateToken(token, parameters);
+                IPrincipal principal = tokenHandler.ValidateToken(token, parameters);
 
                 if (PrincipalTransformer != null)
                 {
-                    principal = PrincipalTransformer.Transform(principal);
+                    principal = PrincipalTransformer.Transform((ClaimsPrincipal)principal);
                 }
 
                 Thread.CurrentPrincipal = principal;
