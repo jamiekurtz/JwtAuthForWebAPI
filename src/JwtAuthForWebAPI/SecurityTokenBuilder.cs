@@ -49,32 +49,42 @@ namespace JwtAuthForWebAPI
         {
             var store = new X509Store(certificateStore, certificateStoreLocation);
             store.Open(OpenFlags.ReadOnly);
-            var certs = store.Certificates
-                .Cast<X509Certificate2>()
-                .Where(x => x.Subject == subjectName)
-                .ToList();
 
-            if (certs.Count == 0)
+            try
             {
-                var msg = string.Format(
-                    "Certificate in store '{0}' and location '{1}' and SubjectName '{2}' not found.",
-                    certificateStore,
-                    certificateStoreLocation,
-                    subjectName);
-                throw new Exception(msg);
-            }
+                var certs = store.Certificates
+                    .OfType<X509Certificate2>()
+                    .Where(x => x.SubjectName.Name != null 
+                        && x.SubjectName.Name.Equals(subjectName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
-            if (certs.Count > 1)
+                if (certs.Count == 0)
+                {
+                    var msg = string.Format(
+                        "Certificate in store '{0}' and location '{1}' and SubjectName '{2}' not found.",
+                        certificateStore,
+                        certificateStoreLocation,
+                        subjectName);
+                    throw new Exception(msg);
+                }
+
+                if (certs.Count > 1)
+                {
+                    var msg = string.Format(
+                        "More than one certificate with store '{0}' and location '{1}' and SubjectName '{2}' found.",
+                        certificateStore,
+                        certificateStoreLocation,
+                        subjectName);
+                    throw new Exception(msg);
+                }
+
+                return CreateFromCertificate(certs[0]);
+            }
+            finally
             {
-                var msg = string.Format(
-                    "More than one certificate with store '{0}' and location '{1}' and SubjectName '{2}' found.",
-                    certificateStore,
-                    certificateStoreLocation,
-                    subjectName);
-                throw new Exception(msg);
+                store.Certificates.OfType<X509Certificate2>().ToList().ForEach(x => x.Reset());
+                store.Close();
             }
-
-            return CreateFromCertificate(certs[0]);
         }
 
         /// <summary>
@@ -96,31 +106,40 @@ namespace JwtAuthForWebAPI
         {
             var store = new X509Store(certificateStore, certificateStoreLocation);
             store.Open(OpenFlags.ReadOnly);
-            var certs = store.Certificates.Find(findType, findValue, true);
 
-            if (certs.Count == 0)
+            try
             {
-                var msg = string.Format(
-                    "Certificate in store '{0}' and location '{1}' and findType '{2}' and findValue '{3}' not found.",
-                    certificateStore,
-                    certificateStoreLocation,
-                    findType,
-                    findValue);
-                throw new Exception(msg);
-            }
+                var certs = store.Certificates.Find(findType, findValue, true);
 
-            if (certs.Count > 1)
+                if (certs.Count == 0)
+                {
+                    var msg = string.Format(
+                        "Certificate in store '{0}' and location '{1}' and findType '{2}' and findValue '{3}' not found.",
+                        certificateStore,
+                        certificateStoreLocation,
+                        findType,
+                        findValue);
+                    throw new Exception(msg);
+                }
+
+                if (certs.Count > 1)
+                {
+                    var msg = string.Format(
+                        "More than one certificate with store '{0}' and location '{1}' and findType '{2}' and findValue '{3}' found.",
+                        certificateStore,
+                        certificateStoreLocation,
+                        findType,
+                        findValue);
+                    throw new Exception(msg);
+                }
+
+                return CreateFromCertificate(certs[0]);
+            }
+            finally
             {
-                var msg = string.Format(
-                    "More than one certificate with store '{0}' and location '{1}' and findType '{2}' and findValue '{3}' found.",
-                    certificateStore,
-                    certificateStoreLocation,
-                    findType,
-                    findValue);
-                throw new Exception(msg);
+                store.Certificates.OfType<X509Certificate2>().ToList().ForEach(x => x.Reset());
+                store.Close();
             }
-
-            return CreateFromCertificate(certs[0]);
         }
     }
 }
