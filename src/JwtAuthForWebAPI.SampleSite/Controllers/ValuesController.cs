@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
-using System.Security.Claims;
 using System.Web.Http;
+using JwtAuthForWebAPI.SampleSite.Security;
 
 namespace JwtAuthForWebAPI.SampleSite.Controllers
 {
@@ -12,7 +12,7 @@ namespace JwtAuthForWebAPI.SampleSite.Controllers
         [Authorize]
         public string Get()
         {
-            return ((ClaimsPrincipal) User).Identity.Name;
+            return ((SamplePrincipal) User).Identity.Name;
         }
 
         [AllowAnonymous]

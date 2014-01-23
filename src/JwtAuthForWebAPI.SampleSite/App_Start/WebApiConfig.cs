@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+﻿using System.Web.Http;
+using JwtAuthForWebAPI.SampleSite.Security;
 
 namespace JwtAuthForWebAPI.SampleSite
 {
@@ -12,8 +10,8 @@ namespace JwtAuthForWebAPI.SampleSite
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
-                defaults: new { id = RouteParameter.Optional }
-            );
+                defaults: new {id = RouteParameter.Optional}
+                );
 
             var builder = new SecurityTokenBuilder();
             var jwtHandler = new JwtAuthenticationMessageHandler
@@ -21,7 +19,8 @@ namespace JwtAuthForWebAPI.SampleSite
                 AllowedAudience = "http://www.example.com",
                 AllowedAudiences = new[] {"http://www.anotherexample.com"},
                 Issuer = "corp",
-                SigningToken = builder.CreateFromCertificate("CN=JwtAuthForWebAPI Example")
+                SigningToken = builder.CreateFromCertificate("CN=JwtAuthForWebAPI Example"),
+                PrincipalTransformer = new SamplePrincipalTransformer()
             };
 
             config.MessageHandlers.Add(jwtHandler);

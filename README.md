@@ -43,6 +43,19 @@ either an X.509 certificate or a shared key (as either a byte array or a base64-
 You can also use the `AllowedAudiences` property - in addition to or instead of the `AllowedAudience` property.
 
 
+Principal Transformation
+------------------------
+
+If you'd rather have your own `IPrincipal` created - instead of the default `ClaimsPrincipal` - you can implement your own  
+`IPrincipalTransformer`. This allows you transform the default `ClaimsPrincipal` and all of its claims into an `IPrincipal` of your
+choosing. Simply set the `PrincipalTransformer` property on the `JwtAuthenticationMessageHandler` instance to your own instance 
+of `IPrincipalTransformer`. 
+
+All you need to implement in your own IPrincipalTransformer class is:
+
+	IPrincipal Transform(ClaimsPrincipal principal);
+
+
 Creating a Development Certificate
 ----------------------------------
 
@@ -80,8 +93,6 @@ Testing
 -------
 
 1. Run unit tests in the solution's Tests folder.
-
 1. Run integration tests in the JwtAuthForWebAPI.SampleClient project.
 
-   The JwtAuthForWebAPI.SampleSite must be running in order to run integration tests. To start the site, you can set it as the startup
-   project and click F5 to start the site; once the site is running you can close the browser.
+The JwtAuthForWebAPI.SampleSite must be running in order to run integration tests. To start the site, you can set it as the startup project and click F5 to start the site; once the site is running you can close the browser.
