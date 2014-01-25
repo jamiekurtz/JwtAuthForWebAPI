@@ -42,6 +42,17 @@ either an X.509 certificate or a shared key (as either a byte array or a base64-
 
 You can also use the `AllowedAudiences` property - in addition to or instead of the `AllowedAudience` property.
 
+We have provided a custom ConfigurationSection for your convenience if you would like to make these values easily configurable. The JwtAuthForWebAPI.SampleSite provides example usage. The following excerpts from the Web.config file pertain to configuration:
+
+    <section name="jwtAuthenticationMessageHandlerConfiguration"
+    type="JwtAuthForWebAPI.JwtAuthenticationMessageHandlerConfigurationSection"/>
+    ...
+      <jwtAuthenticationMessageHandlerConfiguration
+    AllowedAudience="http://www.example.com"
+    AllowedAudiences="http://www.anotherexample.com;http://www.yetanotherexample.com"
+    Issuer="corp"
+    SubjectCertificateName="CN=JwtAuthForWebAPI Example"/>
+
 
 Principal Transformation
 ------------------------
