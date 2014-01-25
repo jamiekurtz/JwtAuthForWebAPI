@@ -47,7 +47,7 @@ We have provided a custom ConfigurationSection for your convenience if you would
     <section name="jwtAuthenticationMessageHandlerConfiguration"
     type="JwtAuthForWebAPI.JwtAuthenticationMessageHandlerConfigurationSection"/>
     ...
-      <jwtAuthenticationMessageHandlerConfiguration
+    <jwtAuthenticationMessageHandlerConfiguration
     AllowedAudience="http://www.example.com"
     AllowedAudiences="http://www.anotherexample.com;http://www.yetanotherexample.com"
     Issuer="corp"
