@@ -92,7 +92,6 @@ Please view the web.config file in the JwtAuthForWebAPI.SampleSite project for a
 Testing
 -------
 
-1. Run unit tests in the solution's Tests folder.
-1. Run integration tests in the JwtAuthForWebAPI.SampleClient project.
+Unit tests are available in the solution's UnitTests folder, and integration tests are available in the solution's IntegrationTests folder.
 
-The JwtAuthForWebAPI.SampleSite must be running in order to run integration tests. To start the site, you can set it as the startup project and click F5 to start the site; once the site is running you can close the browser.
+*Please note that the JwtAuthForWebAPI.SampleSite must be running in order to run integration tests.* You can set the site as the startup project and click F5 to start the site; once the site is running you can close the browser.

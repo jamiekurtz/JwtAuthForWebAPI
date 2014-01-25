@@ -34,6 +34,7 @@
       <HintPath>..\..\lib\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.IdentityModel.Tokens.Jwt">
@@ -52,6 +53,7 @@
     <Compile Include="IJwtSecurityTokenHandler.cs" />
     <Compile Include="IPrincipalTransformer.cs" />
     <Compile Include="JwtAuthenticationMessageHandler.cs" />
+    <Compile Include="JwtAuthenticationMessageHandlerConfigurationSection.cs" />
     <Compile Include="JwtSecurityTokenAdapter.cs" />
     <Compile Include="JwtSecurityTokenHandlerAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

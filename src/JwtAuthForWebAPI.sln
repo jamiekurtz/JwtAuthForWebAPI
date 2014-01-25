@@ -7,9 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI.SampleSite
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI.SampleClient", "JwtAuthForWebAPI.SampleClient\JwtAuthForWebAPI.SampleClient.csproj", "{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPITests", "JwtAuthForWebAPITests\JwtAuthForWebAPITests.csproj", "{525689D3-61BA-484C-8401-21EAE0E6B2E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{4FAACDAB-D6CD-4753-86D3-5EEE751ABB66}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,5 +41,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{525689D3-61BA-484C-8401-21EAE0E6B2E1} = {F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1}
+		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA} = {4FAACDAB-D6CD-4753-86D3-5EEE751ABB66}
 	EndGlobalSection
 EndGlobal
