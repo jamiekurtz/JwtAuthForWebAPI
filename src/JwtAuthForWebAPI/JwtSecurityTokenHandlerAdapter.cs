@@ -14,7 +14,7 @@ namespace JwtAuthForWebAPI
 
         public ClaimsPrincipal ValidateToken(IJwtSecurityToken securityToken, TokenValidationParameters validationParameters)
         {
-            return _securityTokenHandler.ValidateToken(((JwtSecurityTokenAdapter) securityToken).Inner.RawData, validationParameters);
+            return _securityTokenHandler.ValidateToken(securityToken.Inner.RawData, validationParameters);
         }
     }
 }

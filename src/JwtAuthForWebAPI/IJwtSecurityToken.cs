@@ -5,5 +5,6 @@ namespace JwtAuthForWebAPI
     /// </summary>
     public interface IJwtSecurityToken
     {
+        System.IdentityModel.Tokens.JwtSecurityToken Inner { get; }
     }
 }
