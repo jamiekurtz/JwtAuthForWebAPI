@@ -83,7 +83,7 @@ namespace JwtAuthForWebAPI
             if (authHeader.Scheme != BearerScheme)
             {
                 _logger.InfoFormat(
-                    "Authorization header scheme is {0}; needs to {1} to be handled as a JWT.",
+                    "Authorization header scheme is {0}; needs to be {1} to be handled as a JWT.",
                     authHeader.Scheme,
                     BearerScheme);
                 return BaseSendAsync(request, cancellationToken);

@@ -42,6 +42,30 @@ either an X.509 certificate or a shared key (as either a byte array or a base64-
 
 You can also use the `AllowedAudiences` property - in addition to or instead of the `AllowedAudience` property.
 
+We have provided a custom ConfigurationSection for your convenience if you would like to make these values easily configurable. The following excerpts from the Web.config file pertain to configuration:
+
+    <section name="JwtAuthForWebAPI"
+        type="JwtAuthForWebAPI.JwtAuthForWebApiConfigurationSection"/>
+    ...
+      <JwtAuthForWebAPI
+        AllowedAudience="http://www.example.com"
+        AllowedAudiences="http://www.anotherexample.com;http://www.yetanotherexample.com"
+        Issuer="corp"
+        SubjectCertificateName="CN=JwtAuthForWebAPI Example"/>
+
+As can be seen in the JwtAuthForWebAPI.SampleSite, you can utilize this configuration section by using the provided ConfigurationReader:
+
+        var tokenBuilder = new SecurityTokenBuilder();
+        var configReader = new ConfigurationReader();
+        var jwtHandler = new JwtAuthenticationMessageHandler
+        {
+            AllowedAudience = configReader.AllowedAudience,
+            Issuer = configReader.Issuer,
+            SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
+        };
+
+        config.MessageHandlers.Add(jwtHandler);
+
 
 Principal Transformation
 ------------------------
@@ -92,7 +116,6 @@ Please view the web.config file in the JwtAuthForWebAPI.SampleSite project for a
 Testing
 -------
 
-1. Run unit tests in the solution's Tests folder.
-1. Run integration tests in the JwtAuthForWebAPI.SampleClient project.
+Unit tests are available in the solution's UnitTests folder, and integration tests are available in the solution's IntegrationTests folder.
 
-The JwtAuthForWebAPI.SampleSite must be running in order to run integration tests. To start the site, you can set it as the startup project and click F5 to start the site; once the site is running you can close the browser.
+*Please note that the JwtAuthForWebAPI.SampleSite must be running in order to run integration tests.* You can set the site as the startup project and click F5 to start the site; once the site is running you can close the browser.

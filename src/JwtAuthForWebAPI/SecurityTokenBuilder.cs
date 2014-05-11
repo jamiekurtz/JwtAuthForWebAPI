@@ -54,8 +54,8 @@ namespace JwtAuthForWebAPI
             {
                 var certs = store.Certificates
                     .OfType<X509Certificate2>()
-                    .Where(x => x.SubjectName.Name != null 
-                        && x.SubjectName.Name.Equals(subjectName, StringComparison.OrdinalIgnoreCase))
+                    .Where(x => x.SubjectName.Name != null
+                                && x.SubjectName.Name.Equals(subjectName, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
                 if (certs.Count == 0)

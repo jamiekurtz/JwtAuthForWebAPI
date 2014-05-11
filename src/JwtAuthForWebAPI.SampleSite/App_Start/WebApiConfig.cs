@@ -13,16 +13,16 @@ namespace JwtAuthForWebAPI.SampleSite
                 defaults: new {id = RouteParameter.Optional}
                 );
 
-            var builder = new SecurityTokenBuilder();
+            var tokenBuilder = new SecurityTokenBuilder();
+            var configReader = new ConfigurationReader();
             var jwtHandler = new JwtAuthenticationMessageHandler
             {
-                AllowedAudience = "http://www.example.com",
-                AllowedAudiences = new[] {"http://www.anotherexample.com"},
-                Issuer = "corp",
-                SigningToken = builder.CreateFromCertificate("CN=JwtAuthForWebAPI Example"),
+                AllowedAudience = configReader.AllowedAudience,
+                AllowedAudiences = configReader.AllowedAudiences,
+                Issuer = configReader.Issuer,
+                SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
                 PrincipalTransformer = new SamplePrincipalTransformer()
             };
-
             config.MessageHandlers.Add(jwtHandler);
 
 
