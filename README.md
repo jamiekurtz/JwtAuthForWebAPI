@@ -42,16 +42,29 @@ either an X.509 certificate or a shared key (as either a byte array or a base64-
 
 You can also use the `AllowedAudiences` property - in addition to or instead of the `AllowedAudience` property.
 
-We have provided a custom ConfigurationSection for your convenience if you would like to make these values easily configurable. The JwtAuthForWebAPI.SampleSite provides example usage. The following excerpts from the Web.config file pertain to configuration:
+We have provided a custom ConfigurationSection for your convenience if you would like to make these values easily configurable. The following excerpts from the Web.config file pertain to configuration:
 
-    <section name="jwtAuthenticationMessageHandlerConfiguration"
-    type="JwtAuthForWebAPI.JwtAuthenticationMessageHandlerConfigurationSection"/>
+    <section name="JwtAuthForWebAPI"
+        type="JwtAuthForWebAPI.JwtAuthForWebApiConfigurationSection"/>
     ...
-    <jwtAuthenticationMessageHandlerConfiguration
-    AllowedAudience="http://www.example.com"
-    AllowedAudiences="http://www.anotherexample.com;http://www.yetanotherexample.com"
-    Issuer="corp"
-    SubjectCertificateName="CN=JwtAuthForWebAPI Example"/>
+      <JwtAuthForWebAPI
+        AllowedAudience="http://www.example.com"
+        AllowedAudiences="http://www.anotherexample.com;http://www.yetanotherexample.com"
+        Issuer="corp"
+        SubjectCertificateName="CN=JwtAuthForWebAPI Example"/>
+
+As can be seen in the JwtAuthForWebAPI.SampleSite, you can utilize this configuration section by using the provided ConfigurationReader:
+
+        var tokenBuilder = new SecurityTokenBuilder();
+        var configReader = new ConfigurationReader();
+        var jwtHandler = new JwtAuthenticationMessageHandler
+        {
+            AllowedAudience = configReader.AllowedAudience,
+            Issuer = configReader.Issuer,
+            SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
+        };
+
+        config.MessageHandlers.Add(jwtHandler);
 
 
 Principal Transformation

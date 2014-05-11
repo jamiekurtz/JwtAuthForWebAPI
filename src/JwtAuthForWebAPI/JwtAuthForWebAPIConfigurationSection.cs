@@ -1,15 +1,12 @@
-﻿// JwtAuthenticationMessageHandlerConfigurationSection.cs
-// Copyright fiserv 2014.
-
-using System.Configuration;
+﻿using System.Configuration;
 
 namespace JwtAuthForWebAPI
 {
-    public class JwtAuthenticationMessageHandlerConfigurationSection : ConfigurationSection
+    internal class JwtAuthForWebApiConfigurationSection : ConfigurationSection
     {
-        public static readonly JwtAuthenticationMessageHandlerConfigurationSection Current =
-            (JwtAuthenticationMessageHandlerConfigurationSection) ConfigurationManager.GetSection
-                ("jwtAuthenticationMessageHandlerConfiguration");
+        public static readonly JwtAuthForWebApiConfigurationSection Current =
+            (JwtAuthForWebApiConfigurationSection) ConfigurationManager.GetSection
+                ("JwtAuthForWebAPI");
 
         [ConfigurationProperty("EnableAuthenticationMessageHandler", DefaultValue = "false")]
         public bool EnableAuthenticationMessageHandler
@@ -28,7 +25,7 @@ namespace JwtAuthForWebAPI
         [ConfigurationProperty("AllowedAudiences", DefaultValue = "")]
         public string AllowedAudiences
         {
-            get { return (string)base["AllowedAudiences"]; }
+            get { return (string) base["AllowedAudiences"]; }
             set { base["AllowedAudiences"] = value; }
         }
 

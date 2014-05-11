@@ -50,11 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationReader.cs" />
     <Compile Include="IJwtSecurityToken.cs" />
     <Compile Include="IJwtSecurityTokenHandler.cs" />
     <Compile Include="IPrincipalTransformer.cs" />
     <Compile Include="JwtAuthenticationMessageHandler.cs" />
-    <Compile Include="JwtAuthenticationMessageHandlerConfigurationSection.cs" />
+    <Compile Include="JwtAuthForWebAPIConfigurationSection.cs" />
     <Compile Include="JwtSecurityTokenAdapter.cs" />
     <Compile Include="JwtSecurityTokenHandlerAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

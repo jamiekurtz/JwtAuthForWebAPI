@@ -1,5 +1,4 @@
-﻿using System;
-using System.Web.Http;
+﻿using System.Web.Http;
 using JwtAuthForWebAPI.SampleSite.Security;
 
 namespace JwtAuthForWebAPI.SampleSite
@@ -14,14 +13,14 @@ namespace JwtAuthForWebAPI.SampleSite
                 defaults: new {id = RouteParameter.Optional}
                 );
 
+            var tokenBuilder = new SecurityTokenBuilder();
+            var configReader = new ConfigurationReader();
             var jwtHandler = new JwtAuthenticationMessageHandler
             {
-                AllowedAudience = JwtAuthenticationMessageHandlerConfigurationSection.Current.AllowedAudience,
-                AllowedAudiences = string.IsNullOrWhiteSpace(JwtAuthenticationMessageHandlerConfigurationSection.Current.AllowedAudiences)
-                    ? new string[0] 
-                    : JwtAuthenticationMessageHandlerConfigurationSection.Current.AllowedAudiences.Split(new[] { ';', ',' }),
-                Issuer = JwtAuthenticationMessageHandlerConfigurationSection.Current.Issuer,
-                SigningToken = new SecurityTokenBuilder().CreateFromCertificate(JwtAuthenticationMessageHandlerConfigurationSection.Current.SubjectCertificateName),
+                AllowedAudience = configReader.AllowedAudience,
+                AllowedAudiences = configReader.AllowedAudiences,
+                Issuer = configReader.Issuer,
+                SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
                 PrincipalTransformer = new SamplePrincipalTransformer()
             };
             config.MessageHandlers.Add(jwtHandler);
