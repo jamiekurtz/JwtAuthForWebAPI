@@ -1,4 +1,6 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Text;
+using System.Web.Http;
 using JwtAuthForWebAPI.SampleSite.Security;
 
 namespace JwtAuthForWebAPI.SampleSite
@@ -13,17 +15,29 @@ namespace JwtAuthForWebAPI.SampleSite
                 defaults: new {id = RouteParameter.Optional}
                 );
 
+
             var tokenBuilder = new SecurityTokenBuilder();
             var configReader = new ConfigurationReader();
-            var jwtHandler = new JwtAuthenticationMessageHandler
+
+            var jwtHandlerCert = new JwtAuthenticationMessageHandler
             {
                 AllowedAudience = configReader.AllowedAudience,
                 AllowedAudiences = configReader.AllowedAudiences,
                 Issuer = configReader.Issuer,
                 SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
                 PrincipalTransformer = new SamplePrincipalTransformer()
+            };    
+        
+            var jwtHandlerSharedKey = new JwtAuthenticationMessageHandler
+            {
+                AllowedAudience = configReader.AllowedAudience,
+                Issuer = configReader.Issuer,
+                SigningToken = tokenBuilder.CreateFromKey(configReader.SymmetricKey),
+                PrincipalTransformer = new SamplePrincipalTransformer()
             };
-            config.MessageHandlers.Add(jwtHandler);
+
+            config.MessageHandlers.Add(jwtHandlerCert);
+            config.MessageHandlers.Add(jwtHandlerSharedKey);
 
 
             // Uncomment the following line of code to enable query support for actions with an IQueryable or IQueryable<T> return type.

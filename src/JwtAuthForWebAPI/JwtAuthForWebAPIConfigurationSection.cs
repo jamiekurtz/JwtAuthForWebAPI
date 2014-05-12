@@ -42,5 +42,12 @@ namespace JwtAuthForWebAPI
             get { return (string) base["SubjectCertificateName"]; }
             set { base["SubjectCertificateName"] = value; }
         }
+
+        [ConfigurationProperty("SymmetricKey", DefaultValue = "")]
+        public string SymmetricKey
+        {
+            get { return (string)base["SymmetricKey"]; }
+            set { base["SymmetricKey"] = value; }
+        }
     }
 }

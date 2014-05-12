@@ -49,5 +49,13 @@
         {
             get { return JwtAuthForWebApiConfigurationSection.Current.SubjectCertificateName; }
         }
+
+        /// <summary>
+        ///     Gets a string representing the configured SymmetricKey value
+        /// </summary>
+        public string SymmetricKey
+        {
+            get { return JwtAuthForWebApiConfigurationSection.Current.SymmetricKey; }
+        }
     }
 }

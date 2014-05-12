@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.ServiceModel.Security.Tokens;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -41,11 +42,11 @@ namespace JwtAuthForWebAPI
         ///     value on the token. Default value is "http://www.example.com".
         /// </summary>
         public string AllowedAudience { get; set; }
-        
+
         /// <summary>
         ///     Gets or sets a list of audience values (usually URLs, but really just an arbitrary string) that
-        ///     will be used during validation of incoming JWTs. At least one value in this list must match 
-        ///     the AppliesToAddress value on the token. 
+        ///     will be used during validation of incoming JWTs. At least one value in this list must match
+        ///     the AppliesToAddress value on the token.
         /// </summary>
         public IEnumerable<string> AllowedAudiences { get; set; }
 
@@ -57,8 +58,8 @@ namespace JwtAuthForWebAPI
         public string Issuer { get; set; }
 
         /// <summary>
-        /// Gets or sets the <see cref="IPrincipalTransformer"/> that converts a principal into a custom
-        /// principal. May be null.
+        ///     Gets or sets the <see cref="IPrincipalTransformer" /> that converts a principal into a custom
+        ///     principal. May be null.
         /// </summary>
         public IPrincipalTransformer PrincipalTransformer { get; set; }
 
@@ -101,13 +102,28 @@ namespace JwtAuthForWebAPI
             var tokenHandler = CreateTokenHandler();
             var token = CreateToken(tokenString);
 
+            if (SigningToken != null && token.SignatureAlgorithm != null)
+            {
+                if (token.SignatureAlgorithm.StartsWith("RS") && !(SigningToken is X509SecurityToken))
+                {
+                    _logger.DebugFormat("Incoming token signature is X509, but token handler's signing token is not.");
+                    return BaseSendAsync(request, cancellationToken);
+                }
+
+                if (token.SignatureAlgorithm.StartsWith("HS") && !(SigningToken is BinarySecretSecurityToken))
+                {
+                    _logger.DebugFormat("Incoming token signature is SHA, but token handler's signing token is not.");
+                    return BaseSendAsync(request, cancellationToken);
+                }
+            }
+
             try
             {
                 IPrincipal principal = tokenHandler.ValidateToken(token, parameters);
 
                 if (PrincipalTransformer != null)
                 {
-                    principal = PrincipalTransformer.Transform((ClaimsPrincipal)principal);
+                    principal = PrincipalTransformer.Transform((ClaimsPrincipal) principal);
                 }
 
                 Thread.CurrentPrincipal = principal;

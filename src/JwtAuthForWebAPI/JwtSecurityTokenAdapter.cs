@@ -1,12 +1,24 @@
+using System.IdentityModel.Tokens;
+
 namespace JwtAuthForWebAPI
 {
     public class JwtSecurityTokenAdapter : IJwtSecurityToken
     {
-        public System.IdentityModel.Tokens.JwtSecurityToken Inner { get; private set; }
+        private readonly JwtSecurityToken _inner;
 
         public JwtSecurityTokenAdapter(string tokenString)
         {
-            Inner = new System.IdentityModel.Tokens.JwtSecurityToken(tokenString);
+            _inner = new JwtSecurityToken(tokenString);
+        }
+
+        public string SignatureAlgorithm
+        {
+            get { return _inner.SignatureAlgorithm; }
+        }
+
+        public string RawData
+        {
+            get { return _inner.RawData; }
         }
     }
 }

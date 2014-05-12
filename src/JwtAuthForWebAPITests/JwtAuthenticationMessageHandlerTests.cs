@@ -2,7 +2,9 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
+using System.ServiceModel.Security.Tokens;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -44,7 +46,7 @@ namespace JwtAuthForWebAPITests
 
         private Mock<IJwtSecurityTokenHandler> _securityTokenHandlerMock;
 
-        private Mock<IPrincipalTransformer> _principalTransformerMock; 
+        private Mock<IPrincipalTransformer> _principalTransformerMock;
 
         private JwtAuthenticationMessageHandlerTestDouble _authenticationMessageHandler;
 
@@ -76,7 +78,8 @@ namespace JwtAuthForWebAPITests
                 return _handler;
             }
 
-            protected override Task<HttpResponseMessage> BaseSendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            protected override Task<HttpResponseMessage> BaseSendAsync(HttpRequestMessage request,
+                CancellationToken cancellationToken)
             {
                 return Task.FromResult(new HttpResponseMessage());
             }
@@ -107,7 +110,7 @@ namespace JwtAuthForWebAPITests
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer");
 
             var principal = new ClaimsPrincipal(new ClaimsIdentity());
-            var transformedPrincipal = new GenericPrincipal(new ClaimsIdentity(), new []{"user"});
+            var transformedPrincipal = new GenericPrincipal(new ClaimsIdentity(), new[] {"user"});
 
             _securityTokenHandlerMock.Setup(
                 x => x.ValidateToken(_securityTokenMock.Object, It.IsAny<TokenValidationParameters>()))

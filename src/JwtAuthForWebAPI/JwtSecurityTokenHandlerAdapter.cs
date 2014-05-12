@@ -12,9 +12,10 @@ namespace JwtAuthForWebAPI
             _securityTokenHandler = new JwtSecurityTokenHandler();
         }
 
-        public ClaimsPrincipal ValidateToken(IJwtSecurityToken securityToken, TokenValidationParameters validationParameters)
+        public ClaimsPrincipal ValidateToken(IJwtSecurityToken securityToken,
+            TokenValidationParameters validationParameters)
         {
-            return _securityTokenHandler.ValidateToken(securityToken.Inner.RawData, validationParameters);
+            return _securityTokenHandler.ValidateToken(securityToken.RawData, validationParameters);
         }
     }
 }
