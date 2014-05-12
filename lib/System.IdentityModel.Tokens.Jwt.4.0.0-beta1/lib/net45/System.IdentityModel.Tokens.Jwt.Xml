@@ -277,6 +277,36 @@
             <param name="secondsSinceUnixEpoch">Number of seconds.</param>
             <returns>The DateTime in UTC.</returns>
         </member>
+        <member name="T:System.IdentityModel.Tokens.ISecurityTokenValidator">
+            <summary>
+            ISecurityTokenValidator
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.ISecurityTokenValidator.CanReadToken(System.String)">
+            <summary>
+            Answers the question if the token can be read, it is assumed if the token can be read, it can be validated.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.ISecurityTokenValidator.ValidateToken(System.String,System.IdentityModel.Tokens.TokenValidationParameters)">
+            <summary>
+            Validates a token passed as a string using <see cref="T:System.IdentityModel.Tokens.TokenValidationParameters"/>
+            </summary>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.ISecurityTokenValidator.AuthenticationType">
+            <summary>
+            Gets or sets the authentication type to use when creating the claims identity
+            </summary>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.ISecurityTokenValidator.ClockSkewInSeconds">
+            <summary>
+            Gets or sets the clock skew to apply when validating times
+            </summary>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.ISecurityTokenValidator.MaximumTokenSizeInBytes">
+            <summary>
+            Gets and sets the maximum size in bytes, that a will be processed.
+            </summary>
+        </member>
         <member name="T:System.IdentityModel.Tokens.JsonExtensions">
             <summary>
             Dictionary extensions for serializations
@@ -393,6 +423,11 @@
             Claim short name.
             </summary>
         </member>
+        <member name="F:System.IdentityModel.Tokens.JwtConstants.ReservedClaims.C_Hash">
+            <summary>
+            Claim short name.
+            </summary>
+        </member>
         <member name="F:System.IdentityModel.Tokens.JwtConstants.ReservedClaims.Email">
             <summary>
             Claim short name.
@@ -434,6 +469,11 @@
             </summary>
         </member>
         <member name="F:System.IdentityModel.Tokens.JwtConstants.ReservedClaims.NameId">
+            <summary>
+            Claim short name.
+            </summary>
+        </member>
+        <member name="F:System.IdentityModel.Tokens.JwtConstants.ReservedClaims.Nonce">
             <summary>
             Claim short name.
             </summary>
@@ -656,6 +696,12 @@
             </summary>
             <remarks>If the 'audience' claim is not found, null is returned.</remarks>
         </member>
+        <member name="P:System.IdentityModel.Tokens.JwtPayload.C_Hash">
+            <summary>
+            Gets 'value' of the 'c_hash' claim { c_hash, 'value' }.
+            </summary>
+            <remarks>If the 'c_hash' claim is not found, null is returned.</remarks>
+        </member>
         <member name="P:System.IdentityModel.Tokens.JwtPayload.Expiration">
             <summary>
             Gets the 'value' of the 'expiration' claim { exp, 'value' }.
@@ -679,6 +725,12 @@
             Gets 'value' of the 'issuer' claim { iss, 'value' }.
             </summary>
             <remarks>If the 'issuer' claim is not found, null is returned.</remarks>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtPayload.Nonce">
+            <summary>
+            Gets 'value' of the 'nonce' claim { nonce, 'value' }.
+            </summary>
+            <remarks>If the 'nonce' claim is not found, null is returned.</remarks>
         </member>
         <member name="P:System.IdentityModel.Tokens.JwtPayload.Subject">
             <summary>
@@ -915,7 +967,7 @@
             </remarks>
             <returns>
             <para>'true' if the token is in JSON compact serialization format.</para>
-            <para>'false' if token.Length * 2 &gt;  <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.MaxTokenSizeInBytes"/>.</para>
+            <para>'false' if token.Length * 2 &gt;  <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.MaximumTokenSizeInBytes"/>.</para>
             </returns>
             <exception cref="T:System.ArgumentNullException">'tokenString' is null.</exception>
         </member>
@@ -1116,6 +1168,15 @@
             <exception cref="T:System.ArgumentNullException">'input' is null.</exception>
             <exception cref="T:System.InvalidProgramException"><see cref="M:System.IdentityModel.Tokens.SignatureProviderFactory.CreateForSigning(System.IdentityModel.Tokens.SecurityKey,System.String)"/> returns null.</exception>
         </member>
+        <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ValidateSignature(System.IdentityModel.Tokens.JwtSecurityToken,System.Byte[],System.Byte[],System.Collections.Generic.IEnumerable{System.IdentityModel.Tokens.SecurityKey})">
+            <summary>
+            Validates that the signature, if found and / or required is valid.
+            </summary>
+            <param name="jwt"><see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> if the signature validates, jwt.SigningToken and jwt.SigningKey will be set.</param>
+            <param name="encodedBytes">bytes representing the header and payload.</param>
+            <param name="signatureBytes">bytes representing the signature.</param>
+            <param name="securityKeys">contains the <see cref="T:System.IdentityModel.Tokens.SecurityKey"/>(s) used to check the signature.</param>
+        </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ValidateSignature(System.IdentityModel.Tokens.JwtSecurityToken,System.Byte[],System.Byte[],System.Collections.Generic.IEnumerable{System.IdentityModel.Tokens.SecurityToken})">
             <summary>
             Validates that the signature, if found and / or required is valid.
@@ -1170,12 +1231,12 @@
             <param name="jwt">The <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> to validate.</param>
             <param name="validationParameters">Contains valid audiences.</param>
             <remarks><para>If <see cref="P:System.IdentityModel.Tokens.AudienceRestriction.AudienceMode"/> == <see cref="F:System.IdentityModel.Selectors.AudienceUriMode.Never"/> OR  <para>( <see cref="T:System.IdentityModel.Selectors.AudienceUriMode"/> == <see cref="F:System.IdentityModel.Selectors.AudienceUriMode.BearerKeyOnly"/>  AND  <see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.SecurityKeys"/>.Count == 0 ) </para><para>then validation is skipped.</para></para>
-            <para>If validation is performed, <see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.Audience"/> is compared first to <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudience"/> and then to each string in <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudiences"/>. Returns when first compare succeeds. Compare is performed using <see cref="T:System.StringComparison"/>.Ordinal (case sensitive).</para></remarks>
+            <para>If validation is performed, <see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.Audience"/> is compared first to <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidateAudience"/> and then to each string in <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidAudiences"/>. Returns when first compare succeeds. Compare is performed using <see cref="T:System.StringComparison"/>.Ordinal (case sensitive).</para></remarks>
             <exception cref="T:System.ArgumentNullException">'jwt' is null.</exception>
             <exception cref="T:System.ArgumentNullException">'validationParameters' is null.</exception>
             <exception cref="T:System.IdentityModel.Tokens.SecurityTokenValidationException">if <see cref="M:System.String.IsNullOrWhiteSpace(System.String)"/>( <see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.Audience"/> ) is true.</exception>
-            <exception cref="T:System.ArgumentException">'<see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudience"/>' is null or whitespace AND <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudiences"/> is null.</exception>
-            <exception cref="T:System.IdentityModel.Tokens.AudienceUriValidationFailedException"><see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.Audience"/> fails to match <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudience"/> or one of <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudiences"/>.</exception>
+            <exception cref="T:System.ArgumentException">'<see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidAudience"/>' is null or whitespace AND <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidAudiences"/> is null.</exception>
+            <exception cref="T:System.IdentityModel.Tokens.AudienceUriValidationFailedException"><see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.Audience"/> fails to match <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidAudience"/> or one of <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidAudiences"/>.</exception>
         </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ValidateLifetime(System.IdentityModel.Tokens.JwtSecurityToken)">
             <summary>
@@ -1186,7 +1247,7 @@
             <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.RequireExpirationTime"/> mandates if claim { exp, 'value' } is required. Default is true.
             <para>If the <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> contains the claim { exp, 'value' } it will be validated regardless of <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.RequireExpirationTime"/>.</para>
             <para>If the <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> contains the claim { nbf, 'value' } it will be validated.</para>
-            <para><see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.MaxClockSkew"/> is applied.</para>
+            <para><see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ClockSkewInSeconds"/> is applied.</para>
             </remarks>
             <exception cref="T:System.ArgumentNullException">'jwt' is null.</exception>
             <exception cref="T:System.IdentityModel.Tokens.SecurityTokenValidationException"><see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> does not contain the claim { exp, 'value' } and <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.RequireExpirationTime"/> is true.</exception>
@@ -1222,18 +1283,19 @@
         </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.GetSigningTokens(System.IdentityModel.Tokens.JwtSecurityToken)">
             <summary>
-            Uses IssuerTokenResolver to obtains possible signing tokens for a jwt.
+            Uses IssuerTokenResolver to obtain signing tokens for a jwt.
             </summary>
             <param name="jwt">The <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> to resolve tokens.</param>
             <returns><see cref="T:System.Collections.Generic.IList`1"/> containing all resolved tokens. The list can be empty.</returns>
             <exception cref="T:System.ArgumentNullException">'jwt' is null.</exception>
         </member>
-        <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.GetSigningTokens(System.IdentityModel.Tokens.TokenValidationParameters)">
+        <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.RetreiveIssuerSigningKeys(System.String,System.IdentityModel.Tokens.TokenValidationParameters)">
             <summary>
-            Consolidates the possible signing tokens from <see cref="T:System.IdentityModel.Tokens.TokenValidationParameters"/>.
+            Produces a <see cref="T:System.Collections.Generic.IEnumerable`1"/> to use when validating the signature of a securityToken.
             </summary>
-            <param name="validationParameters">contains <see cref="T:System.IdentityModel.Tokens.SecurityToken"/> in different places.</param>
-            <returns>Returns a <see cref="T:System.Collections.Generic.IList`1"/> containing all <see cref="T:System.IdentityModel.Tokens.SecurityToken"/> found in validationParameters.</returns>
+            <param name="securityToken"> the security token that needs to have it's signature validated validated.</param>
+            <param name="validationParameters">A <see cref="T:System.IdentityModel.Tokens.TokenValidationParameters"/> instance that has references to multiple <see cref="T:System.IdentityModel.Tokens.SecurityKey"/>.</param>
+            <returns>Returns a <see cref="T:System.Collections.Generic.IEnumerable`1"/> of the keys to use for signature validation.</returns>
             <exception cref="T:System.ArgumentNullException">'validationParameters' is null.</exception>
         </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ValidateSigningToken(System.IdentityModel.Tokens.JwtSecurityToken)">
@@ -1288,6 +1350,12 @@
             </summary>
             <exception cref="T:System.ArgumentException">if <see cref="T:System.String"/>.IsIsNullOrWhiteSpace('value') is true.</exception>
         </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.AuthenticationType">
+            <summary>
+            Gets or sets the AuthenticationType when creating a <see cref="T:System.Security.Claims.ClaimsIdentity"/> during token validation.
+            </summary>
+            <exception cref="T:System.ArgumentNullException"> if 'value' is null or whitespace.</exception>
+        </member>
         <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.CanValidateToken">
             <summary>
             Returns 'true' which indicates this instance can validate a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/>.
@@ -1297,6 +1365,12 @@
             <summary>
             Returns 'true', which indicates this instance can write <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/>.
             </summary>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ClockSkewInSeconds">
+            <summary>
+            Gets or sets the clock skew to apply when validating times
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"> if 'value' is less than 0.</exception>
         </member>
         <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.CertificateValidator">
             <summary>
@@ -1343,28 +1417,9 @@
             Controls the value <see cref="P:System.Security.Claims.ClaimsIdentity.Name"/> property will return. It will return the first <see cref="P:System.Security.Claims.Claim.Value"/> where the <see cref="P:System.Security.Claims.Claim.Type"/> equals <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.NameClaimType"/>.
             </remarks>
         </member>
-        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.MaxClockSkew">
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.MaximumTokenSizeInBytes">
             <summary>
-            Gets or sets the clockskew to use when validating times.
-            </summary>
-            <remarks>The following search path is used to obtain the clockskew to return:
-            <para>
-            1. If <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.JwtSecurityTokenRequirement"/>.MaxClockSkew.HasValue, return this value.
-            </para>
-            ----
-            <para>
-            2. If <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/>.Configuration is not null, return <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/>.Configuration.MaxClockSkew.
-            </para>
-            ----
-            <para>
-            3. default: <see cref="F:System.IdentityModel.Tokens.SecurityTokenHandlerConfiguration.DefaultMaxClockSkew"/>.
-            </para>
-            </remarks>
-            <exception cref="T:System.ArgumentOutOfRangeException">'value' is less than <see cref="F:System.TimeSpan.Zero"/></exception>
-        </member>
-        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.MaxTokenSizeInBytes">
-            <summary>
-            Gets or sets the size limit when reading a token as a string.
+            Gets and sets the maximum size in bytes, that a will be processed.
             </summary>
             <remarks>This does not set limits when reading tokens using a <see cref="T:System.Xml.XmlReader"/>. Use xml quotas on the <see cref="T:System.Xml.XmlReader"/> for those limits.</remarks>
             <exception cref="T:System.ArgumentOutOfRangeException">'value' == 0.</exception>
@@ -1413,6 +1468,16 @@
             </summary>
             <remarks>These values have precedence over <see cref="P:System.IdentityModel.Tokens.SecurityTokenHandler.Configuration"/>.</remarks>
         </member>
+        <member name="F:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.DefaultClockSkewInSeconds">
+            <summary>
+            The default clock skew.
+            </summary>
+        </member>
+        <member name="F:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.DefaultMaximumTokenSizeInBytes">
+            <summary>
+            The default maximum size of a token that the runtime will process.
+            </summary>
+        </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenRequirement"/> class. 
@@ -1454,6 +1519,27 @@
             Gets or sets the <see cref="T:System.IdentityModel.Selectors.X509CertificateValidator"/> for validating <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2"/>(s).
             </summary>
         </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.ClockSkewInSeconds">
+            <summary>
+            Gets or sets the clock skew to use when validating times.
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException"> if 'value' is less than 0.</exception>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.DefaultTokenLifetimeInMinutes">
+            <summary>
+            Gets or sets the default for token lifetime.
+            <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/> uses this value when creating a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> if the expiration time is not specified.  The expiration time will be set to <see cref="P:System.DateTime.UtcNow"/> + <see cref="M:System.TimeSpan.FromMinutes(System.Double)"/> with <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.DefaultTokenLifetimeInMinutes"/> as the parameter.
+            </summary>
+            <remarks>Default: 600 (10 hours).</remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">value == 0.</exception>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.MaximumTokenSizeInBytes">
+            <summary>
+            Gets or sets the maximum size of a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> the <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/> will read and validate.
+            </summary>
+            <remarks>Default: 2 megabytes.</remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">if value is 0.</exception>
+        </member>
         <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.NameClaimType">
             <summary>
             Gets or sets the <see cref="T:System.String"/> the <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/> passes as a parameter to <see cref="M:System.Security.Claims.ClaimsIdentity.#ctor(System.String,System.String,System.String)"/>. 
@@ -1465,27 +1551,6 @@
             Gets or sets the <see cref="T:System.String"/> the <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/> passes as a parameter to <see cref="M:System.Security.Claims.ClaimsIdentity.#ctor(System.String,System.String,System.String)"/>.
             <para>This defines the <see cref="T:System.Security.Claims.Claim"/>(s) that will be considered when answering <see cref="M:System.Security.Claims.ClaimsPrincipal.IsInRole(System.String)"/></para>
             </summary>
-        </member>
-        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.MaximumTokenSizeInBytes">
-            <summary>
-            Gets or sets the maximum size of a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> the <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/> will read and validate.
-            </summary>
-            <remarks>Default: 2 megabytes.</remarks>
-            <exception cref="T:System.ArgumentOutOfRangeException">if value is 0.</exception>
-        </member>
-        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.DefaultTokenLifetimeInMinutes">
-            <summary>
-            Gets or sets the default for token lifetime.
-            <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/> uses this value when creating a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> if the expiration time is not specified.  The expiration time will be set to <see cref="P:System.DateTime.UtcNow"/> + <see cref="M:System.TimeSpan.FromMinutes(System.Double)"/> with <see cref="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.DefaultTokenLifetimeInMinutes"/> as the parameter.
-            </summary>
-            <remarks>Default: 600.</remarks>
-            <exception cref="T:System.ArgumentOutOfRangeException">value == 0.</exception>
-        </member>
-        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenRequirement.MaxClockSkew">
-            <summary>
-            Gets or sets the maximum clock skew to use when validating lifetime of a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/>.
-            </summary>
-            <exception cref="T:System.ArgumentOutOfRangeException"><see cref="T:System.TimeSpan"/>? has a value and it is less than <see cref="F:System.TimeSpan.Zero"/>.</exception>
         </member>
         <member name="T:System.IdentityModel.Tokens.NamedKeyIssuerTokenResolver">
             <summary>
@@ -1630,7 +1695,7 @@
         </member>
         <member name="M:System.IdentityModel.Tokens.NamedKeySecurityKeyIdentifierClause.#ctor(System.String,System.String)">
             <summary>
-            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.NamedKeySecurityKeyIdentifierClause"/> class. The 'name' for matching key identifiers found in the jwt.
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.NamedKeySecurityKeyIdentifierClause"/> class. The 'name' for matching key identifiers found in the securityToken.
             </summary>
             <param name="name">
             Used to identify a named collection of keys.
@@ -1741,6 +1806,156 @@
             <summary>
             Gets the <see cref="T:System.IdentityModel.Tokens.SecurityKey"/>(s).
             </summary>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException">
+            <summary>
+            This exception is thrown when 'audience' of a token was not valid.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException"/> class.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">A <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidAudienceException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException">
+            <summary>
+            This exception is thrown when 'issuer' of a token was not valid.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException"/> class.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">A <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidIssuerException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException">
+            <summary>
+            This exception is thrown when 'lifetime' of a token was not valid.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException"/> class.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">A <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidLifetimeException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException">
+            <summary>
+            This exception is thrown when 'signature' of a token was not valid.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException"/> class.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">A <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenInvalidSignatureException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException">
+            <summary>
+            This exception is thrown when a security token contained a key identifier but the key was not found by the runtime.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException"/> class.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException"/> class.
+            </summary>
+            <param name="message">Addtional information to be included in the exception and displayed to user.</param>
+            <param name="innerException">A <see cref="T:System.Exception"/> that represents the root cause of the exception.</param>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.SecurityTokenSignatureKeyNotFoundException"/> class.
+            </summary>
+            <param name="info">the <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data.</param>
+            <param name="context">The contextual information about the source or destination.</param>
         </member>
         <member name="T:System.IdentityModel.Tokens.SignatureProviderFactory">
             <summary>
@@ -1921,58 +2136,90 @@
         </member>
         <member name="T:System.IdentityModel.Tokens.TokenValidationParameters">
             <summary>
-            Contains a set of parameters that are used by <see cref="T:System.IdentityModel.Tokens.SecurityTokenHandler"/> when validating a <see cref="T:System.IdentityModel.Tokens.SecurityToken"/>.
+            Contains a set of parameters that are used by a <see cref="T:System.IdentityModel.Tokens.SecurityTokenHandler"/> when validating a <see cref="T:System.IdentityModel.Tokens.SecurityToken"/>.
             </summary>
         </member>
         <member name="M:System.IdentityModel.Tokens.TokenValidationParameters.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.TokenValidationParameters"/> class with <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AudienceUriMode"/> = BearerKeyOnly and <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.SaveBootstrapContext"/> = false.
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.TokenValidationParameters"/> class.
+            </summary>        
+        </member>
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.AudienceValidator">
+            <summary>
+            Gets or sets a delegate that will be used to validate the audience of the token
             </summary>
         </member>
-        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudience">
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.IssuerSigningKey">
             <summary>
-            Gets or sets an audience that is considered valid.
+            Gets or sets the <see cref="T:System.IdentityModel.Tokens.SecurityKey"/> that is to be used for validating signed tokens. 
             </summary>
         </member>
-        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.AllowedAudiences">
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.IssuerSigningKeys">
             <summary>
-            Gets or sets a collection of audiences that are considered valid.
+            Gets or sets the <see cref="T:System.Collections.Generic.IEnumerable`1"/> that are to be used for validating signed tokens. 
             </summary>
         </member>
-        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.AudienceUriMode">
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.IssuerSigningToken">
             <summary>
-            Gets or sets the <see cref="P:System.IdentityModel.Tokens.TokenValidationParameters.AudienceUriMode"/> to use when validating audience values.
+            Gets or sets the <see cref="T:System.IdentityModel.Tokens.SecurityToken"/> that is used for validating signed tokens. 
             </summary>
         </member>
-        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.SaveBootstrapContext">
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.IssuerSigningTokens">
             <summary>
-            Gets or sets a value indicating whether <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> should be attached to <see cref="P:System.Security.Claims.ClaimsIdentity.BootstrapContext"/> during validation.
+            Gets or sets the <see cref="T:System.Collections.Generic.IEnumerable`1"/> that are to be used for validating signed tokens. 
             </summary>
         </member>
-        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.SigningToken">
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.IssuerValidator">
             <summary>
-            Gets or sets a <see cref="T:System.IdentityModel.Tokens.SecurityToken"/> to use when validating signatures.
+            Gets or sets a delegate that will be used to validate the issuer of the token
             </summary>
         </member>
-        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.SigningTokens">
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.AreIssuerSigningKeysAvailable">
             <summary>
-            Gets or sets a collection of <see cref="T:System.IdentityModel.Tokens.SecurityToken"/> to use when validating signatures.
+            Gets a value indicating if there are keys available for checking signatures.
             </summary>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.IssuerSigningKeyRetriever">
+            <summary>
+            Gets or sets a delegate that will be used to retreive <see cref="T:System.IdentityModel.Tokens.SecurityKey"/>(s) used for checking signatures.
+            </summary>
+            <remarks>Each <see cref="T:System.IdentityModel.Tokens.SecurityKey"/> will be used to check the signature. Returning multiple key can be helpful when the <see cref="T:System.IdentityModel.Tokens.SecurityToken"/> does not contain a key identifier. 
+            This can occur when the issuer has multiple keys available. This sometimes occurs during key rollover.</remarks>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.SaveSigninToken">
+            <summary>
+            Gets or sets a boolean to control if the original token is saved when a session is created.
+            </summary>
+            <remarks>The SecurityTokenValidator will use this value to save the orginal string that was validated.</remarks>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidateAudience">
+            <summary>
+            Gets or sets a boolean to control if the audience will be validated during token validation.
+            </summary>        
         </member>
         <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidateIssuer">
             <summary>
-            Gets or sets a value indicating whether the <see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.Issuer"/> should be validated.
+            Gets or sets a boolean to control if the issuer will be validated during token validation.
+            </summary>                
+        </member>
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidAudience">
+            <summary>
+            Gets or sets a string that represents a valid audience that will be used during token validation.
             </summary>
-            <remarks>The <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> must have an Issuer that is other than whitespace.</remarks>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidAudiences">
+            <summary>
+            Gets or sets a <see cref="T:System.Collections.Generic.IEnumerable`1"/> that contains valid audiences that will be used during token validation.
+            </summary>
         </member>
         <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidIssuer">
             <summary>
-            Gets or sets an issuer that is considered valid.
+            Gets or sets a <see cref="T:System.String"/> that represents a valid issuer that will be used during token validation.
             </summary>
         </member>
         <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidIssuers">
             <summary>
-            Gets or sets a collection of issuers that is considered valid.
+            Gets or sets a <see cref="T:System.Collections.Generic.IEnumerable`1"/> that contains valid issuers that will be used during token validation.
             </summary>
         </member>
         <member name="M:System.IdentityModel.Utility.SerializeAsSingleCommaDelimitedString(System.Collections.Generic.IEnumerable{System.String})">
@@ -2030,6 +2277,22 @@
             <param name="certificate">
             The <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2"/> to validate.
             </param>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.X509SecurityKey">
+            <summary>
+            Security key that allows access to cert
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.X509SecurityKey.#ctor(System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Instantiates a <see cref="T:System.IdentityModel.Tokens.SecurityKey"/> using a <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2"/>
+            </summary>
+            <param name="certificate"> cert to use.</param>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.X509SecurityKey.Certificate">
+            <summary>
+            Gets the <see cref="T:System.Security.Cryptography.X509Certificates.X509Certificate2"/>.
+            </summary>
         </member>
         <member name="T:System.IdentityModel.XmlUtil">
             <summary>

@@ -81,64 +81,64 @@ namespace JwtAuthForWebAPI
                 return BaseSendAsync(request, cancellationToken);
             }
 
-            if (authHeader.Scheme != BearerScheme)
-            {
-                _logger.InfoFormat(
-                    "Authorization header scheme is {0}; needs to be {1} to be handled as a JWT.",
-                    authHeader.Scheme,
-                    BearerScheme);
-                return BaseSendAsync(request, cancellationToken);
-            }
-
-            var parameters = new TokenValidationParameters
-            {
-                AllowedAudience = AllowedAudience,
-                SigningToken = SigningToken,
-                ValidIssuer = Issuer,
-                AllowedAudiences = AllowedAudiences
-            };
-
-            var tokenString = authHeader.Parameter;
-            var tokenHandler = CreateTokenHandler();
-            var token = CreateToken(tokenString);
-
-            if (SigningToken != null && token.SignatureAlgorithm != null)
-            {
-                if (token.SignatureAlgorithm.StartsWith("RS") && !(SigningToken is X509SecurityToken))
+                if (authHeader.Scheme != BearerScheme)
                 {
-                    _logger.DebugFormat("Incoming token signature is X509, but token handler's signing token is not.");
+                    _logger.InfoFormat(
+                        "Authorization header scheme is {0}; needs to be {1} to be handled as a JWT.",
+                        authHeader.Scheme,
+                        BearerScheme);
                     return BaseSendAsync(request, cancellationToken);
                 }
 
-                if (token.SignatureAlgorithm.StartsWith("HS") && !(SigningToken is BinarySecretSecurityToken))
+                var parameters = new TokenValidationParameters
                 {
-                    _logger.DebugFormat("Incoming token signature is SHA, but token handler's signing token is not.");
-                    return BaseSendAsync(request, cancellationToken);
-                }
-            }
+                    ValidAudience = AllowedAudience,
+                    IssuerSigningToken = SigningToken,
+                    ValidIssuer = Issuer,
+                    ValidAudiences = AllowedAudiences
+                };
 
-            try
-            {
-                IPrincipal principal = tokenHandler.ValidateToken(token, parameters);
+                var tokenString = authHeader.Parameter;
+                var tokenHandler = CreateTokenHandler();
+                var token = CreateToken(tokenString);
 
-                if (PrincipalTransformer != null)
+                if (SigningToken != null && token.SignatureAlgorithm != null)
                 {
-                    principal = PrincipalTransformer.Transform((ClaimsPrincipal) principal);
+                    if (token.SignatureAlgorithm.StartsWith("RS") && !(SigningToken is X509SecurityToken))
+                    {
+                        _logger.DebugFormat("Incoming token signature is X509, but token handler's signing token is not.");
+                        return BaseSendAsync(request, cancellationToken);
+                    }
+
+                    if (token.SignatureAlgorithm.StartsWith("HS") && !(SigningToken is BinarySecretSecurityToken))
+                    {
+                        _logger.DebugFormat("Incoming token signature is SHA, but token handler's signing token is not.");
+                        return BaseSendAsync(request, cancellationToken);
+                    }
                 }
 
-                Thread.CurrentPrincipal = principal;
-                _logger.DebugFormat("Thread principal set with identity '{0}'", principal.Identity.Name);
-
-                if (HttpContext.Current != null)
+                try
                 {
-                    HttpContext.Current.User = principal;
+                    IPrincipal principal = tokenHandler.ValidateToken(token, parameters);
+
+                    if (PrincipalTransformer != null)
+                    {
+                        principal = PrincipalTransformer.Transform((ClaimsPrincipal) principal);
+                    }
+
+                    Thread.CurrentPrincipal = principal;
+                    _logger.DebugFormat("Thread principal set with identity '{0}'", principal.Identity.Name);
+
+                    if (HttpContext.Current != null)
+                    {
+                        HttpContext.Current.User = principal;
+                    }
                 }
-            }
-            catch (SecurityTokenValidationException e)
-            {
-                _logger.ErrorFormat("Error during JWT validation: {0}", e);
-                throw;
-            }
+                catch (SecurityTokenValidationException e)
+                {
+                    _logger.ErrorFormat("Error during JWT validation: {0}", e);
+                    throw;
+                }
 
             return BaseSendAsync(request, cancellationToken);
         }
