@@ -1,4 +1,4 @@
-*This version/branch of the library uses the 3.x version of System.IdentityModel.Tokens.Jwt NuGet library. To use the newer version, that which uses the 4.x version of the System.IdentityModel.Tokens.Jwt, please select a different branch.*
+*This version/branch of the library uses the 3.x version of System.IdentityModel.Tokens.Jwt NuGet library. To use the newer version, that which uses the 4.x version of System.IdentityModel.Tokens.Jwt, please select a different branch.*
 
 
 JwtAuthForWebAPI
