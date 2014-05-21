@@ -38,6 +38,10 @@
       <dependency id="log4net" version="2.0.2" />
       <dependency id="System.IdentityModel.Tokens.Jwt" version="4.0.0-beta1" />
     </dependencies>
+
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.IdentityModel" />
+    </frameworkAssemblies>
     
   </metadata>
 </package>
