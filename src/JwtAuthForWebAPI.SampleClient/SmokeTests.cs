@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Tokens;
 using System.Linq;
 using System.Net;
@@ -92,6 +93,22 @@ namespace JwtAuthForWebAPI.SampleClient
             responseMessage.Should().Contain("bsmith");
         }
 
+        [Test]
+        public void call_with_expired_token_to_protected_resource_should_fail_with_440()
+        {
+            var client = new HttpClient { BaseAddress = ApiUrl };
+
+            Lifetime lt = new Lifetime(DateTime.UtcNow.AddHours(-2), DateTime.UtcNow.AddHours(-1));
+            AddAuthHeaderWithCert(client, lifetime: lt);
+
+            var response = client.GetAsync("api/values").Result;
+
+            response.StatusCode.Should().Be((HttpStatusCode)440);
+
+            var responseMessage = response.Content.ReadAsStringAsync().Result;
+            responseMessage.Should().Contain("Security token expired exception");
+        }
+
         private void AddAuthHeaderWithCert(HttpClient client)
         {
             AddAuthHeaderWithCert(client, "http://www.example.com");
@@ -102,7 +119,7 @@ namespace JwtAuthForWebAPI.SampleClient
             AddAuthHeaderWithSharedKey(client, "http://www.example.com");
         }
 
-        private void AddAuthHeaderWithCert(HttpClient client, string audience)
+        private void AddAuthHeaderWithCert(HttpClient client, string audience = "http://www.example.com", Lifetime lifetime = null)
         {
             var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
             store.Open(OpenFlags.ReadOnly);
@@ -124,6 +141,11 @@ namespace JwtAuthForWebAPI.SampleClient
                 AppliesToAddress = audience,
                 SigningCredentials = new X509SigningCredentials(signingCert)
             };
+
+            if (lifetime != null)
+            {
+                tokenDescriptor.Lifetime = lifetime;
+            }
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
