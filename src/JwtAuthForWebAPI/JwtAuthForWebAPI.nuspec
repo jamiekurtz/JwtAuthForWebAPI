@@ -36,7 +36,7 @@
 
     <dependencies>
       <dependency id="log4net" version="2.0.2" />
-      <dependency id="System.IdentityModel.Tokens.Jwt" version="4.0.0-beta1" />
+      <dependency id="System.IdentityModel.Tokens.Jwt" version="4.0.0" />
     </dependencies>
 
     <frameworkAssemblies>
