@@ -313,26 +313,6 @@
             <param name="secondsSinceUnixEpoch">Number of seconds.</param>
             <returns>The DateTime in UTC.</returns>
         </member>
-        <member name="T:System.IdentityModel.Tokens.IExpirableNonceCache">
-            <summary>
-            Interface
-            </summary>
-        </member>
-        <member name="M:System.IdentityModel.Tokens.IExpirableNonceCache.TryAdd(System.String,System.DateTime)">
-            <summary>
-            Try to add nonce
-            </summary>
-            <param name="nonce"></param>
-            <param name="expiresAt"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.IdentityModel.Tokens.IExpirableNonceCache.TryFind(System.String)">
-            <summary>
-            Try to find nonce
-            </summary>
-            <param name="nonce"></param>
-            <returns></returns>
-        </member>
         <member name="T:System.IdentityModel.Tokens.ISecurityTokenValidator">
             <summary>
             ISecurityTokenValidator
@@ -353,10 +333,86 @@
             Gets and sets the maximum size in bytes, that a will be processed.
             </summary>
         </member>
+        <member name="T:System.IdentityModel.Tokens.ITokenReplayCache">
+            <summary>
+            Interface that defines a simple cache for tacking replaying of security tokens.
+            </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.ITokenReplayCache.TryAdd(System.String,System.DateTime)">
+            <summary>
+            Try to add a securityToken.
+            </summary>
+            <param name="securityToken">the security token to add.</param>
+            <param name="expiresOn">the time when security token expires.</param>
+            <returns>true if the security token was successfully added.</returns>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.ITokenReplayCache.TryFind(System.String)">
+            <summary>
+            Try to find securityToken
+            </summary>
+            <param name="securityToken">the security token to find.</param>
+            <returns>true if the security token is found.</returns>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.Serializer">
+            <summary>
+            Definition for a delegate that can be set on <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Serializer"/> to control serialization of objects into JSON.
+            </summary>
+            <param name="obj">Object to serialize</param>
+            <returns>The serialized object.</returns>
+        </member>
+        <member name="T:System.IdentityModel.Tokens.Deserializer">
+            <summary>
+            Definition for a delegate that can be set on <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Deserializer"/> to control deserialization JSON into objects.
+            </summary>
+            <param name="obj">JSON to deserialize.</param>
+            <param name="targetType">type expected.</param>
+            <returns>The deserialized object.</returns>
+        </member>
         <member name="T:System.IdentityModel.Tokens.JsonExtensions">
             <summary>
             Dictionary extensions for serializations
             </summary>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JsonExtensions.SerializeToJson(System.Object)">
+            <summary>
+            Serializes an object to JSON.
+            </summary>
+            <param name="value">The object to serialize</param>
+            <returns>the object as JSON.</returns>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JsonExtensions.DeserializeFromJson``1(System.String)">
+            <summary>
+            Deserialzes JSON into an instance of type T.
+            </summary>
+            <typeparam name="T">the object type.</typeparam>
+            <param name="jsonString">the JSON to deserialze.</param>
+            <returns>a new instance of type T.</returns>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JsonExtensions.DeserializeJwtHeader(System.String)">
+            <summary>
+            Deserialzes JSON into an instance of <see cref="T:System.IdentityModel.Tokens.JwtHeader"/>.
+            </summary>
+            <param name="jsonString">the JSON to deserialze.</param>
+            <returns>a new instance <see cref="T:System.IdentityModel.Tokens.JwtHeader"/>.</returns>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JsonExtensions.DeserializeJwtPayload(System.String)">
+            <summary>
+            Deserialzes JSON into an instance of <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>.
+            </summary>
+            <param name="jsonString">the JSON to deserialze.</param>
+            <returns>a new instance <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>.</returns>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JsonExtensions.Serializer">
+            <summary>
+            Gets or sets a <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Serializer"/> to use when serializing objects to JSON.
+            </summary>
+            <exception cref="T:System.ArgumentNullException">if 'value' is null.</exception>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JsonExtensions.Deserializer">
+            <summary>
+            Gets or sets a <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Deserializer"/> to use when deserializing objects from JSON.
+            </summary>
+            <exception cref="T:System.ArgumentNullException">if 'value' is null.</exception>
         </member>
         <member name="T:System.IdentityModel.Tokens.JwtConfigurationStrings">
             <summary>
@@ -391,6 +447,11 @@
         <member name="F:System.IdentityModel.Tokens.JwtConstants.JsonCompactSerializationRegex">
             <summary>
             Token format: 'header.payload.signature'. Signature is optional, but '.' is required.
+            </summary>
+        </member>
+        <member name="F:System.IdentityModel.Tokens.JwtConstants.JsonClaimValueType">
+            <summary>
+            When mapping json to .Net Claim(s), if the value was not a string (or an enumeration of strings), the ClaimValue will serialized using the current JSON serializer, a property will be added with the .Net type and the ClaimTypeValue will be set to 'JsonClaimValueType'.
             </summary>
         </member>
         <member name="T:System.IdentityModel.Tokens.JwtAlgorithms">
@@ -661,12 +722,35 @@
             <para>    'http://www.w3.org/2001/04/xmldsig-more#hmac-sha256' =&gt; 'HS256'</para>
             </remarks>
         </member>
-        <member name="M:System.IdentityModel.Tokens.JwtHeader.Encode">
+        <member name="M:System.IdentityModel.Tokens.JwtHeader.SerializeToJson">
             <summary>
-            Encodes this instance as a Base64UrlEncoded string.
+            Serializes this instance to JSON.
             </summary>
-            <remarks>Returns the current state. If this instance has changed since the last call, the value will be different.</remarks>
-            <returns>a string BaseUrlEncoded representing the contents of this header.</returns>
+            <returns>this instance as JSON.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Serializer"/> to customize JSON serialization.</remarks>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtHeader.Base64UrlEncode">
+            <summary>
+            Encodes this instance as Base64UrlEncoded JSON.
+            </summary>
+            <returns>Base64UrlEncoded JSON.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Serializer"/> to customize JSON serialization.</remarks>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtHeader.Base64UrlDeserialize(System.String)">
+            <summary>
+            Deserializes Base64UrlEncoded JSON into a <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> instance.
+            </summary>
+            <param name="base64UrlEncodedJsonString">base64url encoded JSON to deserialize.</param>
+            <returns>an instance of <see cref="T:System.IdentityModel.Tokens.JwtHeader"/>.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Deserializer"/> to customize JSON serialization.</remarks>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtHeader.Deserialize(System.String)">
+            <summary>
+            Deserialzes JSON into a <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> instance.
+            </summary>
+            <param name="jsonString"> the JSON to deserialize.</param>
+            <returns>an instance of <see cref="T:System.IdentityModel.Tokens.JwtHeader"/>.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Deserializer"/> to customize JSON serialization.</remarks>
         </member>
         <member name="P:System.IdentityModel.Tokens.JwtHeader.Alg">
             <summary>
@@ -679,6 +763,12 @@
             Gets the <see cref="P:System.IdentityModel.Tokens.JwtHeader.SigningCredentials"/> passed in the constructor.
             </summary>
             <remarks>This value may be null.</remarks>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtHeader.Typ">
+            <summary>
+            Gets the mime type (Typ) of the token.
+            </summary>
+            <remarks>If the mime type is not found, null is returned.</remarks>
         </member>
         <member name="P:System.IdentityModel.Tokens.JwtHeader.SigningKeyIdentifier">
             <summary>
@@ -704,6 +794,12 @@
             Creates a empty <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>
             </summary>
         </member>
+        <member name="M:System.IdentityModel.Tokens.JwtPayload.#ctor(System.Collections.Generic.IEnumerable{System.Security.Claims.Claim})">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.JwtPayload"/> class with <see cref="T:System.Collections.Generic.IEnumerable`1"/>. Default string comparer <see cref="P:System.StringComparer.Ordinal"/>.
+            <param name="claims">the claims to add.</param>
+            </summary>
+        </member>
         <member name="M:System.IdentityModel.Tokens.JwtPayload.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{System.Security.Claims.Claim},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
             <summary>
             Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.JwtPayload"/> class with claims added for each parameter specified. Default string comparer <see cref="P:System.StringComparer.Ordinal"/>. 
@@ -711,10 +807,10 @@
             <param name="issuer">if this value is not null, a { iss, 'issuer' } claim will be added.</param>
             <param name="audience">if this value is not null, a { aud, 'audience' } claim will be added</param>
             <param name="claims">if this value is not null then for each <see cref="T:System.Security.Claims.Claim"/> a { 'Claim.Type', 'Claim.Value' } is added. If duplicate claims are found then a { 'Claim.Type', List&lt;object&gt; } will be created to contain the duplicate values.</param>
-            <param name="notBefore">notbefore.HasValue a { nbf, 'value' } is added.</param>
-            <param name="expires">expires.HasValue a { exp, 'value' } claim is added.</param>
+            <param name="notBefore">if notbefore.HasValue is 'true' a { nbf, 'value' } claim is added.</param>
+            <param name="expires">if expires.HasValue is 'true' a { exp, 'value' } claim is added.</param>
             <remarks>Comparison is set to <see cref="P:System.StringComparer.Ordinal"/>
-            <para>If a 'nbf' or 'exp' claim exists in the 'claims' it will be replaced with the 'notbefore' and 'expires' if they are not null.</para></remarks>
+            <para>The 4 parameters: 'issuer', 'audience', 'notBefore', 'expires' take precednece over <see cref="T:System.Security.Claims.Claim"/>(s) in 'claims'. The values in 'claims' will be overridden.</para></remarks>
             <exception cref="T:System.ArgumentException">if 'expires' &lt;= 'notbefore'.</exception>
         </member>
         <member name="M:System.IdentityModel.Tokens.JwtPayload.AddClaim(System.Security.Claims.Claim)">
@@ -735,14 +831,6 @@
             <para>Any <see cref="T:System.Security.Claims.Claim"/> in the <see cref="T:System.Collections.Generic.IEnumerable`1"/> that is null, will be ignored.</para></remarks>
             <exception cref="T:System.ArgumentNullException">'claims' is null.</exception>
         </member>
-        <member name="M:System.IdentityModel.Tokens.JwtPayload.Encode">
-            <summary>
-            Encodes this instance as a Base64UrlEncoded string.
-            </summary>
-            <remarks>Returns the current state. If this instance has changed since the last call, the value will be different.
-            <para>No cryptographic operations are performed. See <see cref="T:System.IdentityModel.Tokens.JwtSecurityTokenHandler"/> for details.</para></remarks>
-            <returns>a string BaseUrlEncoded representing the contents of this payload.</returns>
-        </member>
         <member name="M:System.IdentityModel.Tokens.JwtPayload.GetDateTime(System.String)">
             <summary>
             Gets the DateTime using the number of seconds from 1970-01-01T0:0:0Z (UTC)
@@ -752,6 +840,36 @@
             </remarks>
             <exception cref="T:System.IdentityModel.Tokens.SecurityTokenException">if an overflow exception is thrown by the runtime.</exception>
             <returns>the DateTime representation of a claim.</returns>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtPayload.SerializeToJson">
+            <summary>
+            Serializes this instance to JSON.
+            </summary>
+            <returns>this instance as JSON.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Serializer"/> to customize JSON serialization.</remarks>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtPayload.Base64UrlEncode">
+            <summary>
+            Encodes this instance as Base64UrlEncoded JSON.
+            </summary>
+            <returns>Base64UrlEncoded JSON.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Serializer"/> to customize JSON serialization.</remarks>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtPayload.Base64UrlDeserialize(System.String)">
+            <summary>
+            Deserializes Base64UrlEncoded JSON into a <see cref="T:System.IdentityModel.Tokens.JwtPayload"/> instance.
+            </summary>
+            <param name="base64UrlEncodedJsonString">base64url encoded JSON to deserialize.</param>
+            <returns>an instance of <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Deserializer"/> to customize JSON serialization.</remarks>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtPayload.Deserialize(System.String)">
+            <summary>
+            Deserialzes JSON into a <see cref="T:System.IdentityModel.Tokens.JwtPayload"/> instance.
+            </summary>
+            <param name="jsonString">the JSON to deserialize.</param>
+            <returns>an instance of <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>.</returns>
+            <remarks>use <see cref="P:System.IdentityModel.Tokens.JsonExtensions.Deserializer"/> to customize JSON serialization.</remarks>
         </member>
         <member name="P:System.IdentityModel.Tokens.JwtPayload.Actort">
             <summary>
@@ -819,6 +937,12 @@
             </summary>
             <remarks>If the 'issuer' claim is not found, null is returned.</remarks>
         </member>
+        <member name="P:System.IdentityModel.Tokens.JwtPayload.Nbf">
+            <summary>
+            Gets the 'value' of the 'expiration' claim { nbf, 'value' }.
+            </summary>
+            <remarks>If the 'notbefore' claim is not found OR could not be converted to <see cref="T:System.Int32"/>, null is returned.</remarks>
+        </member>
         <member name="P:System.IdentityModel.Tokens.JwtPayload.Nonce">
             <summary>
             Gets 'value' of the 'nonce' claim { nonce, 'value' }.
@@ -865,20 +989,30 @@
             <exception cref="T:System.ArgumentException">'jwtEncodedString' is not in JWS Compact serialized format.</exception>
             <remarks>
             The contents of this <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> have not been validated, the JSON Web Token is simply decoded. Validation can be accomplished using <see cref="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ValidateToken(System.String,System.IdentityModel.Tokens.TokenValidationParameters,System.IdentityModel.Tokens.SecurityToken@)"/>
-            </remarks>&gt;
+            </remarks>
         </member>
-        <member name="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String)">
+        <member name="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String,System.String,System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> class where the <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> contains the crypto algorithms applied to the encoded <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> and <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>. The jwtEncodedString is the result of those operations.
             </summary>
             <param name="header">Contains JSON objects representing the cryptographic operations applied to the JWT and optionally any additional properties of the JWT</param>
             <param name="payload">Contains JSON objects representing the claims contained in the JWT. Each claim is a JSON object of the form { Name, Value }</param>
-            <param name="jwtEncodedString">The results of encoding and applying the cryptographic operations to the <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> and <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>.</param>
-            <exception cref="T:System.ArgumentNullException">'header' is null.</exception>        
+            <param name="rawHeader">base64urlencoded JwtHeader</param>
+            <param name="rawPayload">base64urlencoded JwtPayload</param>
+            <param name="rawSignature">base64urlencoded JwtSignature</param>
+            <exception cref="T:System.ArgumentNullException">'header' is null.</exception>
             <exception cref="T:System.ArgumentNullException">'payload' is null.</exception>
-            <exception cref="T:System.ArgumentNullException">'jwtEncodedString' is null.</exception>        
-            <exception cref="T:System.ArgumentException">'jwtEncodedString' contains only whitespace.</exception>        
-            <exception cref="T:System.ArgumentException">'jwtEncodedString' is not in JWS Compact serialized format.</exception>
+            <exception cref="T:System.ArgumentNullException">'rawSignature' is null.</exception>
+            <exception cref="T:System.ArgumentException">'rawHeader' or 'rawPayload' is null or whitespace.</exception>
+        </member>
+        <member name="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> class where the <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> contains the crypto algorithms applied to the encoded <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> and <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>. The jwtEncodedString is the result of those operations.
+            </summary>
+            <param name="header">Contains JSON objects representing the cryptographic operations applied to the JWT and optionally any additional properties of the JWT</param>
+            <param name="payload">Contains JSON objects representing the claims contained in the JWT. Each claim is a JSON object of the form { Name, Value }</param>
+            <exception cref="T:System.ArgumentNullException">'header' is null.</exception>
+            <exception cref="T:System.ArgumentNullException">'payload' is null.</exception>
         </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{System.Security.Claims.Claim},System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.IdentityModel.Tokens.SigningCredentials)">
             <summary>
@@ -958,13 +1092,29 @@
             <summary>
             Gets the original raw data of this instance when it was created.
             </summary>
-            <remarks>The original JSON Compact serialized format passed to one of the two constructors <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.String)"/> 
-            or <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String)"/></remarks>
+            <remarks>The original JSON Compact serialized format passed to one of the two constructors <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.String)"/>
+            or <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String,System.String,System.String)"/></remarks>
         </member>
-        <member name="P:System.IdentityModel.Tokens.JwtSecurityToken.EncodedSignature">
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityToken.RawHeader">
             <summary>
-            Gets the current signature over the jwt
+            Gets the original raw data of this instance when it was created.
             </summary>
+            <remarks>The original JSON Compact serialized format passed to one of the two constructors <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.String)"/>
+            or <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String,System.String,System.String)"/></remarks>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityToken.RawPayload">
+            <summary>
+            Gets the original raw data of this instance when it was created.
+            </summary>
+            <remarks>The original JSON Compact serialized format passed to one of the two constructors <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.String)"/>
+            or <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String,System.String,System.String)"/></remarks>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityToken.RawSignature">
+            <summary>
+            Gets the original raw data of this instance when it was created.
+            </summary>
+            <remarks>The original JSON Compact serialized format passed to one of the two constructors <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.String)"/>
+            or <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String,System.String,System.String)"/></remarks>
         </member>
         <member name="P:System.IdentityModel.Tokens.JwtSecurityToken.SecurityKeys">
             <summary>
@@ -1084,7 +1234,7 @@
         </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.CreateToken(System.String,System.String,System.Security.Claims.ClaimsIdentity,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.IdentityModel.Tokens.SigningCredentials,System.IdentityModel.Tokens.SignatureProvider)">
             <summary>
-            Uses the <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String)"/> constructor, first creating the <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> and <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>.
+            Uses the <see cref="M:System.IdentityModel.Tokens.JwtSecurityToken.#ctor(System.IdentityModel.Tokens.JwtHeader,System.IdentityModel.Tokens.JwtPayload,System.String,System.String,System.String)"/> constructor, first creating the <see cref="T:System.IdentityModel.Tokens.JwtHeader"/> and <see cref="T:System.IdentityModel.Tokens.JwtPayload"/>.
             <para>If <see cref="T:System.IdentityModel.Tokens.SigningCredentials"/> is not null, <see cref="P:System.IdentityModel.Tokens.JwtSecurityToken.RawData"/> will be signed.</para>
             </summary>
             <param name="issuer">the issuer of the token.</param>
@@ -1096,7 +1246,7 @@
             <param name="signatureProvider">optional <see cref="T:System.IdentityModel.Tokens.SignatureProvider"/>.</param>
             <remarks>If <see cref="P:System.Security.Claims.ClaimsIdentity.Actor"/> is not null, then a claim { actort, 'value' } will be added to the payload. <see cref="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.CreateActorValue(System.Security.Claims.ClaimsIdentity)"/> for details on how the value is created.
             <para>See <seealso cref="T:System.IdentityModel.Tokens.JwtHeader"/> for details on how the HeaderParameters are added to the header.</para>
-            <para>See <seealso cref="T:System.IdentityModel.Tokens.JwtPayload"/> for details on how the values are added to the payload.</para></remarks>       
+            <para>See <seealso cref="T:System.IdentityModel.Tokens.JwtPayload"/> for details on how the values are added to the payload.</para></remarks>
             <para>If signautureProvider is not null, then it will be used to create the signature and <see cref="M:System.IdentityModel.Tokens.SignatureProviderFactory.CreateForSigning(System.IdentityModel.Tokens.SecurityKey,System.String)"/> will not be called.</para>
             <returns>A <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/>.</returns>
             <exception cref="T:System.ArgumentException">if 'expires' &lt;= 'notBefore'.</exception>
@@ -1134,7 +1284,7 @@
             <summary>
             Reads a token encoded in JSON Compact serialized format.
             </summary>
-            <param name="token">A 'JSON Web Token' (JWT) that has been encoded as a JSON object. May be signed 
+            <param name="tokenString">A 'JSON Web Token' (JWT) that has been encoded as a JSON object. May be signed 
             using 'JSON Web Signature' (JWS).</param>
             <remarks>
             The JWT must be encoded using Base64Url encoding of the UTF-8 representation of the JWT: Header, Payload and Signature. 
@@ -1283,6 +1433,8 @@
             <param name="keyIdentifier">the <see cref="T:System.IdentityModel.Tokens.SecurityKeyIdentifier"/> found in the token.</param>
             <param name="validationParameters">A <see cref="T:System.IdentityModel.Tokens.TokenValidationParameters"/>  required for validation.</param>
             <returns>Returns a <see cref="T:System.IdentityModel.Tokens.SecurityKey"/> to use for signature validation.</returns>
+            <exception cref="T:System.ArgumentNullException">if 'keyIdentifier' is null.</exception>
+            <exception cref="T:System.ArgumentNullException">if 'validationParameters' is null.</exception>
             <remarks>If key fails to resolve, then null is returned</remarks>
         </member>
         <member name="M:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ValidateIssuerSecurityKey(System.IdentityModel.Tokens.SecurityKey,System.IdentityModel.Tokens.SecurityToken,System.IdentityModel.Tokens.TokenValidationParameters)">
@@ -1297,7 +1449,7 @@
         <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.InboundAlgorithmMap">
             <summary>Gets or sets the <see cref="T:System.Collections.Generic.IDictionary`2"/> used to map Inbound Cryptographic Algorithms.</summary>
             <remarks>Strings that describe Cryptographic Algorithms that are understood by the runtime are not necessarily the same values used in the JsonWebToken specification.
-            <para>When a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> signature is validated, the algorithm is obtained from the HeaderParameter { alg, 'value' }.  
+            <para>When a <see cref="T:System.IdentityModel.Tokens.JwtSecurityToken"/> signature is validated, the algorithm is obtained from the HeaderParameter { alg, 'value' }.
             The 'value' is translated according to this mapping and the translated 'value' is used when performing cryptographic operations.</para>
             <para>Default mapping is:</para>
             <para>    RS256 =&gt; http://www.w3.org/2001/04/xmldsig-more#rsa-sha256 </para>
@@ -1340,6 +1492,13 @@
         <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.ShortClaimTypeProperty">
             <summary>
             Gets or sets the property name of <see cref="P:System.Security.Claims.Claim.Properties"/> the will contain the original JSON claim 'name' if a mapping occurred when the <see cref="T:System.Security.Claims.Claim"/>(s) were created.
+            <para>See <seealso cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.InboundClaimTypeMap"/> for more information.</para>
+            </summary>
+            <exception cref="T:System.ArgumentException">if <see cref="T:System.String"/>.IsIsNullOrWhiteSpace('value') is true.</exception>
+        </member>
+        <member name="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.JsonClaimTypeProperty">
+            <summary>
+            Gets or sets the property name of <see cref="P:System.Security.Claims.Claim.Properties"/> the will contain .Net type that was recogninzed when JwtPayload.Claims serialized the value to JSON.
             <para>See <seealso cref="P:System.IdentityModel.Tokens.JwtSecurityTokenHandler.InboundClaimTypeMap"/> for more information.</para>
             </summary>
             <exception cref="T:System.ArgumentException">if <see cref="T:System.String"/>.IsIsNullOrWhiteSpace('value') is true.</exception>
@@ -2167,7 +2326,7 @@
         </member>
         <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.TokenReplayCache">
             <summary>
-            Gets or set the <see cref="T:System.IdentityModel.Tokens.IExpirableNonceCache"/> that will be checked to ensure that a token in not replayed.
+            Gets or set the <see cref="T:System.IdentityModel.Tokens.ITokenReplayCache"/> that will be checked to help in detecting that a token has been 'seen' before.
             </summary>
         </member>
         <member name="P:System.IdentityModel.Tokens.TokenValidationParameters.ValidateActor">

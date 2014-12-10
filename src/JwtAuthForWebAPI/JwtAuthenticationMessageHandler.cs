@@ -83,95 +83,95 @@ namespace JwtAuthForWebAPI
                 return BaseSendAsync(request, cancellationToken);
             }
 
-                if (authHeader.Scheme != BearerScheme)
+            if (authHeader.Scheme != BearerScheme)
+            {
+                _logger.InfoFormat(
+                    "Authorization header scheme is {0}; needs to be {1} to be handled as a JWT.",
+                    authHeader.Scheme,
+                    BearerScheme);
+                return BaseSendAsync(request, cancellationToken);
+            }
+
+            var parameters = new TokenValidationParameters
+            {
+                ValidAudience = AllowedAudience,
+                IssuerSigningToken = SigningToken,
+                ValidIssuer = Issuer,
+                ValidAudiences = AllowedAudiences
+            };
+
+            var tokenString = authHeader.Parameter;
+            var tokenHandler = CreateTokenHandler();
+            var token = CreateToken(tokenString);
+
+            if (SigningToken != null && token.SignatureAlgorithm != null)
+            {
+                if (token.SignatureAlgorithm.StartsWith("RS") && !(SigningToken is X509SecurityToken))
                 {
-                    _logger.InfoFormat(
-                        "Authorization header scheme is {0}; needs to be {1} to be handled as a JWT.",
-                        authHeader.Scheme,
-                        BearerScheme);
+                    _logger.DebugFormat("Incoming token signature is X509, but token handler's signing token is not.");
                     return BaseSendAsync(request, cancellationToken);
                 }
 
-                var parameters = new TokenValidationParameters
+                if (token.SignatureAlgorithm.StartsWith("HS") && !(SigningToken is BinarySecretSecurityToken))
                 {
-                    ValidAudience = AllowedAudience,
-                    IssuerSigningToken = SigningToken,
-                    ValidIssuer = Issuer,
-                    ValidAudiences = AllowedAudiences
+                    _logger.DebugFormat("Incoming token signature is SHA, but token handler's signing token is not.");
+                    return BaseSendAsync(request, cancellationToken);
+                }
+            }
+
+            try
+            {
+                IPrincipal principal = tokenHandler.ValidateToken(token, parameters);
+
+                if (PrincipalTransformer != null)
+                {
+                    principal = PrincipalTransformer.Transform((ClaimsPrincipal) principal);
+                }
+
+                Thread.CurrentPrincipal = principal;
+                _logger.DebugFormat("Thread principal set with identity '{0}'", principal.Identity.Name);
+
+                if (HttpContext.Current != null)
+                {
+                    HttpContext.Current.User = principal;
+                }
+            }
+            catch (SecurityTokenExpiredException e)
+            {
+                _logger.ErrorFormat("Security token expired: {0}", e);
+
+                var response = new HttpResponseMessage((HttpStatusCode) 440)
+                {
+                    Content = new StringContent("Security token expired exception")
                 };
 
-                var tokenString = authHeader.Parameter;
-                var tokenHandler = CreateTokenHandler();
-                var token = CreateToken(tokenString);
+                var tsc = new TaskCompletionSource<HttpResponseMessage>();
+                tsc.SetResult(response);
+                return tsc.Task;
+            }
+            catch (SecurityTokenSignatureKeyNotFoundException e)
+            {
+                _logger.ErrorFormat("Error during JWT validation: {0}", e);
 
-                if (SigningToken != null && token.SignatureAlgorithm != null)
+                var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
                 {
-                    if (token.SignatureAlgorithm.StartsWith("RS") && !(SigningToken is X509SecurityToken))
-                    {
-                        _logger.DebugFormat("Incoming token signature is X509, but token handler's signing token is not.");
-                        return BaseSendAsync(request, cancellationToken);
-                    }
+                    Content = new StringContent("Untrusted signing cert")
+                };
 
-                    if (token.SignatureAlgorithm.StartsWith("HS") && !(SigningToken is BinarySecretSecurityToken))
-                    {
-                        _logger.DebugFormat("Incoming token signature is SHA, but token handler's signing token is not.");
-                        return BaseSendAsync(request, cancellationToken);
-                    }
-                }
-
-                try
-                {
-                    IPrincipal principal = tokenHandler.ValidateToken(token, parameters);
-
-                    if (PrincipalTransformer != null)
-                    {
-                        principal = PrincipalTransformer.Transform((ClaimsPrincipal) principal);
-                    }
-
-                    Thread.CurrentPrincipal = principal;
-                    _logger.DebugFormat("Thread principal set with identity '{0}'", principal.Identity.Name);
-
-                    if (HttpContext.Current != null)
-                    {
-                        HttpContext.Current.User = principal;
-                    }
-                }
-                catch (SecurityTokenExpiredException e)
-                {
-                    _logger.ErrorFormat("Security token expired: {0}", e);
-
-                    var response = new HttpResponseMessage((HttpStatusCode) 440)
-                    {
-                        Content = new StringContent("Security token expired exception")
-                    };
-
-                    var tsc = new TaskCompletionSource<HttpResponseMessage>();
-                    tsc.SetResult(response);
-                    return tsc.Task;
-                }
-                catch (SecurityTokenSignatureKeyNotFoundException e)
-                {
-                    _logger.ErrorFormat("Error during JWT validation: {0}", e);
-
-                    var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
-                    {
-                        Content = new StringContent("Untrusted signing cert")
-                    };
-
-                    var tsc = new TaskCompletionSource<HttpResponseMessage>();
-                    tsc.SetResult(response);
-                    return tsc.Task;
-                }
-                catch (SecurityTokenValidationException e)
-                {
-                    _logger.ErrorFormat("Error during JWT validation: {0}", e);
-                    throw;
-                }
-                catch (Exception e)
-                {
-                    _logger.ErrorFormat("Error during JWT validation: {0}", e);
-                    throw;
-                }
+                var tsc = new TaskCompletionSource<HttpResponseMessage>();
+                tsc.SetResult(response);
+                return tsc.Task;
+            }
+            catch (SecurityTokenValidationException e)
+            {
+                _logger.ErrorFormat("Error during JWT validation: {0}", e);
+                throw;
+            }
+            catch (Exception e)
+            {
+                _logger.ErrorFormat("Error during JWT validation: {0}", e);
+                throw;
+            }
 
             return BaseSendAsync(request, cancellationToken);
         }
