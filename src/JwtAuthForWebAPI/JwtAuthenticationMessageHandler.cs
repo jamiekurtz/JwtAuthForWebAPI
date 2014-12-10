@@ -65,6 +65,12 @@ namespace JwtAuthForWebAPI
         /// </summary>
         public IPrincipalTransformer PrincipalTransformer { get; set; }
 
+        /// <summary>
+        ///     If set (i.e. not empty and not null), the handler will also look in the request's cookie collection for
+        ///     a cookie by the given name and that contains a valid JWT.
+        /// </summary>
+        public string CookieNameToCheckForToken { get; set; }
+
         protected virtual Task<HttpResponseMessage> BaseSendAsync(
             HttpRequestMessage request,
             CancellationToken cancellationToken)
@@ -72,16 +78,10 @@ namespace JwtAuthForWebAPI
             return base.SendAsync(request, cancellationToken);
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(
-            HttpRequestMessage request,
-            CancellationToken cancellationToken)
+        private string GetTokenFromHeader(HttpRequestMessage request)
         {
             var authHeader = request.Headers.Authorization;
-            if (authHeader == null)
-            {
-                _logger.Info("Missing authorization header");
-                return BaseSendAsync(request, cancellationToken);
-            }
+            if (authHeader == null) return null;
 
             if (authHeader.Scheme != BearerScheme)
             {
@@ -89,8 +89,36 @@ namespace JwtAuthForWebAPI
                     "Authorization header scheme is {0}; needs to be {1} to be handled as a JWT.",
                     authHeader.Scheme,
                     BearerScheme);
-                return BaseSendAsync(request, cancellationToken);
             }
+            else
+            {
+                return authHeader.Parameter;
+            }
+
+            return null;
+        }
+
+        private string GetTokenFromCookie()
+        {
+            if (string.IsNullOrEmpty(CookieNameToCheckForToken)) return null;
+
+            var cookie = HttpContext.Current.Request.Cookies[CookieNameToCheckForToken];
+            if (cookie == null)
+            {
+                _logger.InfoFormat("Cookie by name {0} not found.", CookieNameToCheckForToken);
+                return null;
+            }
+
+            return cookie.Value;
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            var tokenStringFromHeader = GetTokenFromHeader(request);
+            var tokenFromCookie = GetTokenFromCookie();
+            var tokenString = tokenStringFromHeader ?? tokenFromCookie;
 
             var parameters = new TokenValidationParameters
             {
@@ -100,9 +128,22 @@ namespace JwtAuthForWebAPI
                 ValidAudiences = AllowedAudiences
             };
 
-            var tokenString = authHeader.Parameter;
-            var tokenHandler = CreateTokenHandler();
-            var token = CreateToken(tokenString);
+            if (string.IsNullOrEmpty(tokenString))
+            {
+                _logger.Info("Token not found in authorization header or request cookie");
+                return BaseSendAsync(request, cancellationToken);
+            }
+
+            IJwtSecurityToken token;
+            try
+            {
+                token = CreateToken(tokenString);
+            }
+            catch (Exception ex)
+            {
+                _logger.InfoFormat("Error converting token string to JWT: {0}", ex);
+                return BaseSendAsync(request, cancellationToken);
+            }
 
             if (SigningToken != null && token.SignatureAlgorithm != null)
             {
@@ -121,6 +162,7 @@ namespace JwtAuthForWebAPI
 
             try
             {
+                var tokenHandler = CreateTokenHandler();
                 IPrincipal principal = tokenHandler.ValidateToken(token, parameters);
 
                 if (PrincipalTransformer != null)
