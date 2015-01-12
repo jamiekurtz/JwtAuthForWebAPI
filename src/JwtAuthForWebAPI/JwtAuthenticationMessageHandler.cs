@@ -20,12 +20,12 @@ namespace JwtAuthForWebAPI
     /// </summary>
     public class JwtAuthenticationMessageHandler : DelegatingHandler
     {
+        private readonly ILog _logger = LogManager.GetLogger("JwtAuthForWebAPI");
+
         /// <summary>
         ///     String representation of the Bearer scheme, used for JWTs.
         /// </summary>
         public const string BearerScheme = "Bearer";
-
-        private readonly ILog _logger = LogManager.GetLogger("JwtAuthForWebAPI");
 
         public JwtAuthenticationMessageHandler()
         {
@@ -78,14 +78,14 @@ namespace JwtAuthForWebAPI
             return base.SendAsync(request, cancellationToken);
         }
 
-        private string GetTokenFromHeader(HttpRequestMessage request)
+        protected virtual string GetTokenStringFromHeader(HttpRequestMessage request)
         {
             var authHeader = request.Headers.Authorization;
             if (authHeader == null) return null;
 
             if (authHeader.Scheme != BearerScheme)
             {
-                _logger.InfoFormat(
+                _logger.DebugFormat(
                     "Authorization header scheme is {0}; needs to be {1} to be handled as a JWT.",
                     authHeader.Scheme,
                     BearerScheme);
@@ -98,14 +98,14 @@ namespace JwtAuthForWebAPI
             return null;
         }
 
-        private string GetTokenFromCookie()
+        protected virtual string GetTokenStringFromCookie(string cookieName)
         {
-            if (string.IsNullOrEmpty(CookieNameToCheckForToken)) return null;
+            if (string.IsNullOrEmpty(cookieName)) return null;
 
-            var cookie = HttpContext.Current.Request.Cookies[CookieNameToCheckForToken];
+            var cookie = HttpContext.Current.Request.Cookies[cookieName];
             if (cookie == null)
             {
-                _logger.InfoFormat("Cookie by name {0} not found.", CookieNameToCheckForToken);
+                _logger.DebugFormat("Cookie by name {0} not found.", cookieName);
                 return null;
             }
 
@@ -116,21 +116,18 @@ namespace JwtAuthForWebAPI
             HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            var tokenStringFromHeader = GetTokenFromHeader(request);
-            var tokenFromCookie = GetTokenFromCookie();
-            var tokenString = tokenStringFromHeader ?? tokenFromCookie;
+            var tokenStringFromHeader = GetTokenStringFromHeader(request);
+            var tokenStringFromCookie = GetTokenStringFromCookie(CookieNameToCheckForToken);
+            var tokenString = tokenStringFromHeader ?? tokenStringFromCookie;
 
-            var parameters = new TokenValidationParameters
+            if (!string.IsNullOrEmpty(tokenStringFromHeader) && !string.IsNullOrEmpty(tokenStringFromCookie))
             {
-                ValidAudience = AllowedAudience,
-                IssuerSigningToken = SigningToken,
-                ValidIssuer = Issuer,
-                ValidAudiences = AllowedAudiences
-            };
+                _logger.DebugFormat("Both the Authorization header and {0} cookie contained tokens; header token was used", CookieNameToCheckForToken);
+            }
 
             if (string.IsNullOrEmpty(tokenString))
             {
-                _logger.Info("Token not found in authorization header or request cookie");
+                _logger.Debug("Token not found in authorization header or request cookie");
                 return BaseSendAsync(request, cancellationToken);
             }
 
@@ -141,7 +138,7 @@ namespace JwtAuthForWebAPI
             }
             catch (Exception ex)
             {
-                _logger.InfoFormat("Error converting token string to JWT: {0}", ex);
+                _logger.WarnFormat("Error converting token string to JWT: {0}", ex);
                 return BaseSendAsync(request, cancellationToken);
             }
 
@@ -159,6 +156,14 @@ namespace JwtAuthForWebAPI
                     return BaseSendAsync(request, cancellationToken);
                 }
             }
+
+            var parameters = new TokenValidationParameters
+            {
+                ValidAudience = AllowedAudience,
+                IssuerSigningToken = SigningToken,
+                ValidIssuer = Issuer,
+                ValidAudiences = AllowedAudiences
+            };
 
             try
             {

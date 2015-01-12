@@ -49,5 +49,12 @@ namespace JwtAuthForWebAPI
             get { return (string)base["SymmetricKey"]; }
             set { base["SymmetricKey"] = value; }
         }
+
+        [ConfigurationProperty("CookieNameToCheckForToken", DefaultValue = "")]
+        public string CookieNameToCheckForToken
+        {
+            get { return (string)base["CookieNameToCheckForToken"]; }
+            set { base["CookieNameToCheckForToken"] = value; }
+        }
     }
 }

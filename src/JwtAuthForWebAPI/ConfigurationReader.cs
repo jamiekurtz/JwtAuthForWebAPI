@@ -57,5 +57,13 @@
         {
             get { return JwtAuthForWebApiConfigurationSection.Current.SymmetricKey; }
         }
+
+        /// <summary>
+        ///     Gets a string representing the configured CookieNameToCheckForToken value
+        /// </summary>
+        public string CookieNameToCheckForToken
+        {
+            get { return JwtAuthForWebApiConfigurationSection.Current.CookieNameToCheckForToken; }
+        }
     }
 }

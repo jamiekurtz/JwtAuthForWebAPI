@@ -25,7 +25,8 @@ namespace JwtAuthForWebAPI.SampleSite
                 AllowedAudiences = configReader.AllowedAudiences,
                 Issuer = configReader.Issuer,
                 SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
-                PrincipalTransformer = new SamplePrincipalTransformer()
+                PrincipalTransformer = new SamplePrincipalTransformer(),
+                CookieNameToCheckForToken = configReader.CookieNameToCheckForToken
             };    
         
             var jwtHandlerSharedKey = new JwtAuthenticationMessageHandler
@@ -33,7 +34,8 @@ namespace JwtAuthForWebAPI.SampleSite
                 AllowedAudience = configReader.AllowedAudience,
                 Issuer = configReader.Issuer,
                 SigningToken = tokenBuilder.CreateFromKey(configReader.SymmetricKey),
-                PrincipalTransformer = new SamplePrincipalTransformer()
+                PrincipalTransformer = new SamplePrincipalTransformer(),
+                CookieNameToCheckForToken = configReader.CookieNameToCheckForToken
             };
 
             config.MessageHandlers.Add(jwtHandlerCert);

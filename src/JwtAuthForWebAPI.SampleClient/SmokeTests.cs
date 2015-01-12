@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Protocols.WSTrust;
 using System.IdentityModel.Tokens;
 using System.Linq;
@@ -109,6 +110,33 @@ namespace JwtAuthForWebAPI.SampleClient
             responseMessage.Should().Contain("Security token expired exception");
         }
 
+        [Test]
+        public void call_with_cookie_should_succeed()
+        {
+            var client = GetClientWithTokenCookieWithSharedKey();
+
+            var response = client.GetAsync("api/values").Result;
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var responseMessage = response.Content.ReadAsStringAsync().Result;
+            responseMessage.Should().Contain("bsmith");
+        }
+
+        [Test]
+        public void call_with_valid_header_and_invalid_cookie_should_succeed()
+        {
+            var client = GetClientWithTokenCookieWithSharedKey("http://bad.com");
+            AddAuthHeaderWithSharedKey(client);
+
+            var response = client.GetAsync("api/values").Result;
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var responseMessage = response.Content.ReadAsStringAsync().Result;
+            responseMessage.Should().Contain("bsmith");
+        }
+
         private void AddAuthHeaderWithCert(HttpClient client)
         {
             AddAuthHeaderWithCert(client, "http://www.example.com");
@@ -117,6 +145,11 @@ namespace JwtAuthForWebAPI.SampleClient
         private void AddAuthHeaderWithSharedKey(HttpClient client)
         {
             AddAuthHeaderWithSharedKey(client, "http://www.example.com");
+        }
+
+        private HttpClient GetClientWithTokenCookieWithSharedKey()
+        {
+            return GetClientWithTokenCookieWithSharedKey("http://www.example.com");
         }
 
         private void AddAuthHeaderWithCert(HttpClient client, string audience = "http://www.example.com", Lifetime lifetime = null)
@@ -156,6 +189,12 @@ namespace JwtAuthForWebAPI.SampleClient
 
         private void AddAuthHeaderWithSharedKey(HttpClient client, string audience)
         {
+            var tokenString = GetTokenSignedWithSharedKey(audience);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenString);
+        }
+
+        private string GetTokenSignedWithSharedKey(string audience)
+        {
             var key = Convert.FromBase64String(SymmetricKey);
             var credentials = new SigningCredentials(
                 new InMemorySymmetricSecurityKey(key),
@@ -180,7 +219,19 @@ namespace JwtAuthForWebAPI.SampleClient
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenString);
+            return tokenString;
+        }
+
+        private HttpClient GetClientWithTokenCookieWithSharedKey(string audience)
+        {
+            var tokenString = GetTokenSignedWithSharedKey(audience);
+
+            var cookieContainer = new CookieContainer();
+            var handler = new HttpClientHandler {CookieContainer = cookieContainer};
+            var client = new HttpClient(handler) {BaseAddress = ApiUrl};
+            cookieContainer.Add(ApiUrl, new Cookie("ut", tokenString));
+         
+            return client;
         }
     }
 }

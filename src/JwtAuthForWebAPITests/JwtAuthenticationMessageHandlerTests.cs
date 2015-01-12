@@ -78,6 +78,11 @@ namespace JwtAuthForWebAPITests
                 return _handler;
             }
 
+            protected override string GetTokenStringFromHeader(HttpRequestMessage request)
+            {
+                return "not null";
+            }
+
             protected override Task<HttpResponseMessage> BaseSendAsync(HttpRequestMessage request,
                 CancellationToken cancellationToken)
             {
