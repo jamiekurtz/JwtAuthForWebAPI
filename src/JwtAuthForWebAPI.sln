@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI", "JwtAuthForWebAPI\JwtAuthForWebAPI.csproj", "{9A8CF85F-7277-4057-8A73-B0EB90662E61}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPI.SampleSite", "JwtAuthForWebAPI.SampleSite\JwtAuthForWebAPI.SampleSite.csproj", "{97331A9D-D48A-4C00-BB2A-C015F260E71E}"
@@ -12,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JwtAuthForWebAPITests", "JwtAuthForWebAPITests\JwtAuthForWebAPITests.csproj", "{525689D3-61BA-484C-8401-21EAE0E6B2E1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{4FAACDAB-D6CD-4753-86D3-5EEE751ABB66}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{DA6652C9-A170-4ED1-B660-531ABE82B227}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,7 +44,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{525689D3-61BA-484C-8401-21EAE0E6B2E1} = {F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1}
 		{C8FAF53E-C33A-4B5E-95A1-ABACB25A6BCA} = {4FAACDAB-D6CD-4753-86D3-5EEE751ABB66}
+		{525689D3-61BA-484C-8401-21EAE0E6B2E1} = {F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1}
+		{4FAACDAB-D6CD-4753-86D3-5EEE751ABB66} = {DA6652C9-A170-4ED1-B660-531ABE82B227}
+		{F738D9FF-ED9E-4EBA-803B-8F23F1FC9DA1} = {DA6652C9-A170-4ED1-B660-531ABE82B227}
 	EndGlobalSection
 EndGlobal

@@ -209,10 +209,31 @@ namespace JwtAuthForWebAPI
                 tsc.SetResult(response);
                 return tsc.Task;
             }
+            catch (SecurityTokenInvalidAudienceException e)
+            {
+                _logger.ErrorFormat("Error during JWT validation: {0}", e);
+
+                var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent("Invalid token audience")
+                };
+
+                var tsc = new TaskCompletionSource<HttpResponseMessage>();
+                tsc.SetResult(response);
+                return tsc.Task;
+            }
             catch (SecurityTokenValidationException e)
             {
                 _logger.ErrorFormat("Error during JWT validation: {0}", e);
-                throw;
+
+                var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent("Invalid token")
+                };
+
+                var tsc = new TaskCompletionSource<HttpResponseMessage>();
+                tsc.SetResult(response);
+                return tsc.Task;
             }
             catch (Exception e)
             {

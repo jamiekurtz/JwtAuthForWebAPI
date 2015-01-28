@@ -137,6 +137,17 @@ namespace JwtAuthForWebAPI.SampleClient
             responseMessage.Should().Contain("bsmith");
         }
 
+        [Test]
+        public void call_with_invalid_header_and_invalid_cookie_should_fail()
+        {
+            var client = GetClientWithTokenCookieWithSharedKey("http://bad.com");
+            AddAuthHeaderWithSharedKey(client, "http://reallybad.com");
+
+            var response = client.GetAsync("api/values").Result;
+
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
+
         private void AddAuthHeaderWithCert(HttpClient client)
         {
             AddAuthHeaderWithCert(client, "http://www.example.com");

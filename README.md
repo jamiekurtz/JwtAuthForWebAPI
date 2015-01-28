@@ -5,19 +5,21 @@ JwtAuthForWebAPI
 
 Nuget-deployed library for securing your ASP.NET Web API service with JSON Web Tokens (JWT).
 
-This library is essentially a DelegatingHandler that creates a new ClaimsPrincipal based on the incoming token and assigns it to the current 
-thread. As such, you *must* secure your controllers and/or their actions with the `[Authorize]` attribute - per standard ASP.NET authorization practices. In 
-other words, the handler doesn't actually prevent unauthorized access to your site - that's what the `[Authorize]` attribute is for.
+This library is essentially a DelegatingHandler that creates a new ClaimsPrincipal based on the incoming token (which can be in the Authorization header or in a cookie) 
+and assigns it to the current thread. As such, you *must* secure your controllers and/or their actions with the `[Authorize]` attribute - per standard 
+ASP.NET authorization practices. In other words, the handler doesn't actually prevent unauthorized access to your site - that's what the `[Authorize]` attribute is for.
 
 The main class to use is the JwtAuthenticationMessageHandler - which just needs to be added to the MessageHandlers collection during Web API start-up. Also,
-the handler expects the token to be submitted within the Authorization header, using the Bearer scheme. Further, the token itself, per the 
-[JSON Web Token](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html) protocol, is expected to be represented using the JWS Compact 
-Serialized format. This also means that this handler only supports signed JWTs (i.e. JWS), and not encrypted tokens (i.e. JWE). Attempting to use
-a JWE will fail.
+the handler expects the token to be submitted in one of two places:
+
+- Within the Authorization header, using the Bearer scheme. 
+- Within an HTTP cookie, using the cookie name provided during configuration
+
+Further, the token itself, per the [JSON Web Token](http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html) protocol, is expected to be 
+represented using the JWS Compact Serialized format. This also means that this handler only supports signed JWTs (i.e. JWS), and not encrypted tokens 
+(i.e. JWE). Attempting to use a JWE will fail.
 
 You can install the NuGet package for this library at https://www.nuget.org/packages/JwtAuthForWebAPI/.
-
-You will also need to add a reference System.IdentityModel - which is included with the 4.5 .NET Framework.
 
 
 Configuration
@@ -53,7 +55,8 @@ We have provided a custom ConfigurationSection for your convenience if you would
         AllowedAudience="http://www.example.com"
         AllowedAudiences="http://www.anotherexample.com;http://www.yetanotherexample.com"
         Issuer="corp"
-        SubjectCertificateName="CN=JwtAuthForWebAPI Example"/>
+        SubjectCertificateName="CN=JwtAuthForWebAPI Example"
+        CookieNameToCheckForToken="ut" />
 
 As can be seen in the JwtAuthForWebAPI.SampleSite, you can utilize this configuration section by using the provided ConfigurationReader:
 
@@ -82,6 +85,22 @@ All you need to implement in your own IPrincipalTransformer class is:
 	IPrincipal Transform(ClaimsPrincipal principal);
 
 
+A Word About Headers and Cookies
+--------------------------------
+
+As many REST APIs these days need to support browser clients as well as non-browser clients, this library allows the caller to specify the token in 
+either the HTTP Authorization header **or** the an HTTP request cookie. The code prefers the header value, but will use the cookie value if the 
+appropriate Authorization header is empty or missing.
+
+The intention here is to allow support for your own Single Page Application (SPA) as well as non-browser based clients. For example, your REST API might need to 
+support a mobile app as well as your own AngularJS based user interface. In that scenario, the mobile app will likely utilize the Authorization header
+for the required token, but your SPA will instead leverage a browser cookie. From a server perspective, the only difference is the location in which to 
+find the token - everything else is the same.
+
+To provide this support, you simply need to specify the `CookieNameToCheckForToken` property on the `JwtAuthenticationMessageHandler` object. Of course,
+you can also utilize the `ConfigurationReader` and put the cookie's name in the web config file.
+
+
 Creating a Development Certificate
 ----------------------------------
 
@@ -92,7 +111,7 @@ server.
 
 To create the certificate used in this sample code:
 
-1. Open the "Developer Command Prompt for VS2012" (as Administrator) from the Windows Start Menu
+1. Open the "Developer Command Prompt for VS2013" (as Administrator) from the Windows Start Menu
 1. Run the following command to create the certificate:
 
     `makecert -r -n "CN=JwtAuthForWebAPI Example" -sky signature -ss My -sr localmachine`
@@ -113,7 +132,9 @@ content, as well as the following line in your site startup code:
 
     log4net.Config.XmlConfigurator.Configure();
 
-Please view the web.config file in the JwtAuthForWebAPI.SampleSite project for an example of setting up the logger.
+Please view the web.config file in the JwtAuthForWebAPI.SampleSite project for an example of setting up the logger. There are plenty of
+DEBUG messages throughout the code to help you troubleshoot related issues.
+
 
 Testing
 -------

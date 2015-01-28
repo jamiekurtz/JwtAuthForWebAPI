@@ -25,8 +25,7 @@ namespace JwtAuthForWebAPI.SampleSite
                 AllowedAudiences = configReader.AllowedAudiences,
                 Issuer = configReader.Issuer,
                 SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
-                PrincipalTransformer = new SamplePrincipalTransformer(),
-                CookieNameToCheckForToken = configReader.CookieNameToCheckForToken
+                PrincipalTransformer = new SamplePrincipalTransformer()
             };    
         
             var jwtHandlerSharedKey = new JwtAuthenticationMessageHandler
