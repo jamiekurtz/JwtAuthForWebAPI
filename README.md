@@ -75,8 +75,8 @@ As can be seen in the JwtAuthForWebAPI.SampleSite, you can utilize this configur
 Principal Transformation
 ------------------------
 
-If you'd rather have your own `IPrincipal` created - instead of the default `ClaimsPrincipal` - you can implement your own  
-`IPrincipalTransformer`. This allows you transform the default `ClaimsPrincipal` and all of its claims into an `IPrincipal` of your
+If you'd rather have your own `IPrincipal` created - instead of the default `ClaimsPrincipal` - you can implement your own `IPrincipalTransformer`. 
+This allows you transform the default `ClaimsPrincipal` and all of its claims into an `IPrincipal` of your
 choosing. Simply set the `PrincipalTransformer` property on the `JwtAuthenticationMessageHandler` instance to your own instance 
 of `IPrincipalTransformer`. 
 
@@ -89,7 +89,7 @@ A Word About Headers and Cookies
 --------------------------------
 
 As many REST APIs these days need to support browser clients as well as non-browser clients, this library allows the caller to specify the token in 
-either the HTTP Authorization header **or** the an HTTP request cookie. The code prefers the header value, but will use the cookie value if the 
+either the HTTP Authorization header **or** an HTTP request cookie. The code prefers the header value, but will use the cookie value if the 
 appropriate Authorization header is empty or missing.
 
 The intention here is to allow support for your own Single Page Application (SPA) as well as non-browser based clients. For example, your REST API might need to 
