@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel;
 using System.IdentityModel.Tokens;
 using System.Net;
 using System.Net.Http;
@@ -122,7 +123,9 @@ namespace JwtAuthForWebAPI
 
             if (!string.IsNullOrEmpty(tokenStringFromHeader) && !string.IsNullOrEmpty(tokenStringFromCookie))
             {
-                _logger.DebugFormat("Both the Authorization header and {0} cookie contained tokens; header token was used", CookieNameToCheckForToken);
+                _logger.DebugFormat(
+                    "Both the Authorization header and {0} cookie contained tokens; header token was used",
+                    CookieNameToCheckForToken);
             }
 
             if (string.IsNullOrEmpty(tokenString))
@@ -229,6 +232,19 @@ namespace JwtAuthForWebAPI
                 var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
                 {
                     Content = new StringContent("Invalid token")
+                };
+
+                var tsc = new TaskCompletionSource<HttpResponseMessage>();
+                tsc.SetResult(response);
+                return tsc.Task;
+            }
+            catch (SignatureVerificationFailedException e)
+            {
+                _logger.ErrorFormat("Error during JWT validation: {0}", e);
+
+                var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent("Invalid token signature")
                 };
 
                 var tsc = new TaskCompletionSource<HttpResponseMessage>();
