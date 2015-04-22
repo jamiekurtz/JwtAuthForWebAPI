@@ -1,10 +1,10 @@
-﻿using System.IdentityModel.Tokens;
+﻿using System;
+using System.Collections.Specialized;
+using System.IdentityModel.Tokens;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
-using System.ServiceModel.Security.Tokens;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -88,6 +88,29 @@ namespace JwtAuthForWebAPITests
             {
                 return Task.FromResult(new HttpResponseMessage());
             }
+
+            public void CheckPrincipalDouble(IPrincipal principal, Type transformerType)
+            {
+                CheckPrincipal(principal, transformerType);
+            }
+        }
+
+        public class TestPrincipal : IPrincipal
+        {
+            private readonly StringCollection _roles = new StringCollection();
+
+            public TestPrincipal(IIdentity identity, string[] roles)
+            {
+                Identity = identity;
+                _roles.AddRange(roles);
+            }
+
+            public bool IsInRole(string role)
+            {
+                return _roles.Contains(role);
+            }
+
+            public IIdentity Identity { get; private set; }
         }
 
         [Test]
@@ -128,6 +151,19 @@ namespace JwtAuthForWebAPITests
 
             Assert.AreSame(transformedPrincipal, Thread.CurrentPrincipal, "Incorrect CurrentPrincipal");
             Assert.AreSame(transformedPrincipal, HttpContext.Current.User, "Incorrect user in context");
+        }
+
+        [Test]
+        public void CheckPrincipal_throws_on_null_principal()
+        {
+            Assert.Throws<Exception>(() => _authenticationMessageHandler.CheckPrincipalDouble(null, this.GetType()));
+        }
+
+        [Test]
+        public void CheckPrincipal_throws_on_null_principal_identity()
+        {
+            var principal = new TestPrincipal(null, new[] {"user"});
+            Assert.Throws<Exception>(() => _authenticationMessageHandler.CheckPrincipalDouble(principal, GetType()));
         }
     }
 }

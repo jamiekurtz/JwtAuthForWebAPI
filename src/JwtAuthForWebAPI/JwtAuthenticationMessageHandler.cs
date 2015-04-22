@@ -176,6 +176,7 @@ namespace JwtAuthForWebAPI
                 if (PrincipalTransformer != null)
                 {
                     principal = PrincipalTransformer.Transform((ClaimsPrincipal) principal);
+                    CheckPrincipal(principal, PrincipalTransformer.GetType());
                 }
 
                 Thread.CurrentPrincipal = principal;
@@ -258,6 +259,21 @@ namespace JwtAuthForWebAPI
             }
 
             return BaseSendAsync(request, cancellationToken);
+        }
+
+        protected virtual void CheckPrincipal(IPrincipal principal, Type transformerType)
+        {
+            if (principal == null)
+            {
+                throw new Exception("The principal object returned by the PrincipalTransformer (of type " +
+                                    transformerType.FullName + ") cannot be null.");
+            }
+
+            if (principal.Identity == null)
+            {
+                throw new Exception("The principal object returned by the PrincipalTransformer (of type " +
+                                    transformerType.FullName + ") must include a non-null Identity.");
+            }
         }
 
         protected virtual IJwtSecurityToken CreateToken(string tokenString)

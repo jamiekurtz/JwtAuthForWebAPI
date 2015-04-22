@@ -31,8 +31,11 @@
       config.MessageHandlers.Add(jwtHandler);
 
 
-      Version 2.0.5 added support for allowing callers to submit the required token in a browser cookie - to better support Single Page Applications with your REST API.
-      
+      2.0.5 - added support for allowing callers to submit the required token in a browser cookie - to better support Single Page Applications with your REST API.
+      2.0.6 - added explicit catch of SignatureVerificationFailedException to make sure that gets returned as a 401 (and not a 500)
+      2.0.7 - added explicit check of principal object returned from a custom PrincipalTransformer
+
+
       Please see the project site for more details.
 
     </releaseNotes>

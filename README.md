@@ -84,6 +84,8 @@ All you need to implement in your own IPrincipalTransformer class is:
 
 	IPrincipal Transform(ClaimsPrincipal principal);
 
+Note that the IPrincipal object returned from this method must include a non-null Identity.
+
 
 A Word About Headers and Cookies
 --------------------------------
