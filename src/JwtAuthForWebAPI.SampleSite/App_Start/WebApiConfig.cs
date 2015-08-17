@@ -7,13 +7,6 @@ namespace JwtAuthForWebAPI.SampleSite
 {
     public static class WebApiConfig
     {
-        static byte[] GetBytes(string str)
-        {
-            byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
-            return bytes;
-        }
-
         public static void Register(HttpConfiguration config)
         {
             config.Routes.MapHttpRoute(
@@ -31,7 +24,7 @@ namespace JwtAuthForWebAPI.SampleSite
                 AllowedAudience = configReader.AllowedAudience,
                 AllowedAudiences = configReader.AllowedAudiences,
                 Issuer = configReader.Issuer,
-                SigningToken = tokenBuilder.CreateFromKey(GetBytes("testkey")),
+                SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
                 PrincipalTransformer = new SamplePrincipalTransformer()
             };
 
