@@ -19,16 +19,16 @@ namespace JwtAuthForWebAPI.SampleSite
             var tokenBuilder = new SecurityTokenBuilder();
             var configReader = new ConfigurationReader();
 
-            var jwtHandlerCert = new JwtAuthenticationMessageHandler
+            var jwtHandlerCert = new JwtAuthenticationMessageHandler(Logger.Instance)
             {
                 AllowedAudience = configReader.AllowedAudience,
                 AllowedAudiences = configReader.AllowedAudiences,
                 Issuer = configReader.Issuer,
                 SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
                 PrincipalTransformer = new SamplePrincipalTransformer()
-            };    
-        
-            var jwtHandlerSharedKey = new JwtAuthenticationMessageHandler
+            };
+
+            var jwtHandlerSharedKey = new JwtAuthenticationMessageHandler(Logger.Instance)
             {
                 AllowedAudience = configReader.AllowedAudience,
                 Issuer = configReader.Issuer,
