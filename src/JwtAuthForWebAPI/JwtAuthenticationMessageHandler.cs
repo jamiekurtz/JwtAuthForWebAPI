@@ -10,7 +10,6 @@ using System.ServiceModel.Security.Tokens;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using log4net;
 
 namespace JwtAuthForWebAPI
 {
@@ -21,12 +20,17 @@ namespace JwtAuthForWebAPI
     /// </summary>
     public class JwtAuthenticationMessageHandler : DelegatingHandler
     {
-        private readonly ILog _logger = LogManager.GetLogger("JwtAuthForWebAPI");
+        private readonly ILogger _logger = new DefaultLogger();
 
         /// <summary>
         ///     String representation of the Bearer scheme, used for JWTs.
         /// </summary>
         public const string BearerScheme = "Bearer";
+
+        public JwtAuthenticationMessageHandler(ILogger logger) : base()
+        {
+            _logger = logger;
+        }
 
         public JwtAuthenticationMessageHandler()
         {
@@ -130,7 +134,7 @@ namespace JwtAuthForWebAPI
 
             if (string.IsNullOrEmpty(tokenString))
             {
-                _logger.Debug("Token not found in authorization header or request cookie");
+                _logger.DebugFormat("Token not found in authorization header or request cookie");
                 return BaseSendAsync(request, cancellationToken);
             }
 
