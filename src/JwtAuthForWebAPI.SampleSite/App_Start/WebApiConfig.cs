@@ -31,7 +31,7 @@ namespace JwtAuthForWebAPI.SampleSite
                 AllowedAudience = configReader.AllowedAudience,
                 AllowedAudiences = configReader.AllowedAudiences,
                 Issuer = configReader.Issuer,
-                SigningToken = tokenBuilder.CreateFromCertificate(configReader.SubjectCertificateName),
+                SigningToken = tokenBuilder.CreateFromKey(GetBytes("testkey")),
                 PrincipalTransformer = new SamplePrincipalTransformer()
             };
 
